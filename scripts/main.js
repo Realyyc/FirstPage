@@ -1,13 +1,13 @@
-const myImage = document.querySelector("img");
+// const myImage = document.getElementById("image")
 
-myImage.addEventListener("click", ()=> {
-    const mySrc = myImage.getAttribute("src");
-    if(mySrc === "images/test2.png"){
-        myImage.setAttribute("src", "images/test.png");
-    } else {
-        myImage.setAttribute("src", "images/test2.png");
-    }
-});
+// myImage.addEventListener("click", ()=> {
+//     const mySrc = myImage.getAttribute("src");
+//     if(mySrc === "images/test2.png"){
+//         myImage.setAttribute("src", "images/test.png");
+//     } else {
+//         myImage.setAttribute("src", "images/test2.png");
+//     }
+// });
 
 
 
@@ -16,8 +16,12 @@ let myHeading = document.querySelector("h1");
 
 function setUserName() {
     const myName = prompt("Please enter your name.");
-    localStorage.setItem("name", myName);
-    myHeading.textContent = `Welcom to my world, ${myName}`;
+    if (!myName) {
+        setUserName();
+    }else {
+        localStorage.setItem("name", myName);
+        myHeading.textContent = `Welcom to my world, ${myName}`;
+    }
 }
 
 if (!localStorage.getItem("name")) {
