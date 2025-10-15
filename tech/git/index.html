@@ -297,15 +297,6 @@
             top: 70px;
             transform: rotate(-15deg);
         }
-
-        h1 {
-            margin: 0;
-            padding: 20px 0;
-            color: #ff9500;
-            text-shadow: 3px 3px 1px black;
-            font-size: 60px;
-            text-align: center;
-        }
     </style>
     <!-- 用户离开页面时改变页面标题 -->
     <script>document.addEventListener('visibilitychange', function(){if(document.visibilityState=='hidden'){normal_title=document.title;document.title='qwq....';}else{document.title=normal_title;}});</script>
@@ -339,9 +330,9 @@
         <nav class="navbar">
             <div class="logo">yyc's blog(施工中)</div>
             <ul class="nav-links">
-                <li><a href="#" class="nav-link active" data-target="home">首页</a></li>
-                <li><a href="/tech/" class="nav-link" data-target="tech">技术分享</a></li>
-                <li><a href="/about/" class="nav-link" data-target="about">关于我</a></li>
+                <li><a href="/index.html">首页</a></li>
+                <li><a href="/tech/">技术分享</a></li>
+                <li><a href="/about/">关于我</a></li>
             </ul>
             <div class="menu-toggle">☰</div>
         </nav>
@@ -350,17 +341,41 @@
     <!-- 主要内容区域 -->
     <div class="container">
         <!-- 首页内容 -->
-        <section id="home" class="content-section active">
-            <h1> Welcom to my world!</h1>
-            <h2 class="section-title">最新文章</h2>
-            
-            <div class="post-card">
-                <h3 class="post-title">git的使用(test)</h3>
-                <div class="post-meta">发布于 2025年10月14日 | 分类: 技术分享</div>
-                <p class="post-excerpt">git初学者的一点笔记</p>
-                <a href="/tech/git/" class="read-more">阅读更多</a>
-            </div>
-            
+        <section id="content" class="content-section active">
+            <h1 id='git'>Git</h1>
+            <p>git小玩具~</p>
+            <p>在vscode上使用，下载Windows git，然后再在vscode的拓展中下载git graph（可以在侧边栏直接看commit history）</p>
+            <h3 id='在账户创建新的repository'>在账户创建新的repository</h3>
+            <p>创建新的空的仓库, 可以在后面的git push再填充代码</p>
+            <h3 id='git-clone'><code>git clone</code></h3>
+            <p>将文件克隆到本地, </p>
+            <p><code>git clone --bare &lt;repository_site&gt; &lt;file_name&gt;</code></p>
+            <h3 id='git-push'><code>git push</code></h3>
+            <p>将当前文件夹的所有文件传到repository上</p>
+            <p><strong>注意</strong> 需要使用Personal Access Token, 而不是账户密码</p>
+            <p><code>git push &lt;your_repository_site&gt; master</code></p>
+            <h3 id='git-commit'><code>git commit</code></h3>
+            <p>提交分支，①需要邮箱和用户名</p>
+            <pre><code class='language-console' lang='console'>
+            $ git config --global user.name &quot;John Doe&quot;
+            $ git config --global user.email johndoe@example.com
+            </code></pre>
+            <p>②需要先<code>git add file.txt</code>，将改变的文件暂存；③需要commit message用GNU nano编辑器(见下)</p>
+            <p><strong>Commit的目的</strong> make frequent small commits as you work, and use commit messages that identify what changed and why.（Stanford CS144）</p>
+            <h3 id='gnu-nano'>GNU nano</h3>
+            <p>	<code>ctrl+x</code>退出，询问是否保存后输入<code>y</code>再输入<code>Enter</code>就可以退出了</p>
+            <h3 id='git-status'><code>git status</code></h3>
+            <p>	查看当前分支</p>
+            <h3 id='git-switch'><code>git switch</code></h3>
+            <p>	切换分支</p>
+            <h1 id='空白创建流程'>空白创建流程</h1>
+            <ol start='' >
+            <li>在git上新建一个repository</li>
+            <li>在本地新建一个文件夹test</li>
+            <li>命令行进入test文件夹, 顺序执行:  <code>git init</code>, <code>git add ./</code>, <code>git commit</code>, <code>git push &lt;your_repository_site&gt; master</code></li>
+
+            </ol>
+            <p>&nbsp;</p>
         </section>
 
     </div>
@@ -368,38 +383,8 @@
     <script>
         // 导航栏切换功能
         document.addEventListener('DOMContentLoaded', function() {
-            const navLinks = document.querySelectorAll('.nav-link');
-            const contentSections = document.querySelectorAll('.content-section');
             const menuToggle = document.querySelector('.menu-toggle');
             const navLinksContainer = document.querySelector('.nav-links');
-            
-            // 导航链接点击事件
-            // navLinks.forEach(link => {
-            //     link.addEventListener('click', function(e) {
-            //         // e.preventDefault();
-                    
-            //         // 移除所有链接的active类
-            //         navLinks.forEach(l => l.classList.remove('active'));
-            //         // 添加当前链接的active类
-            //         this.classList.add('active');
-                    
-            //         // 隐藏所有内容区域
-            //         contentSections.forEach(section => {
-            //             section.classList.remove('active');
-            //         });
-                    
-            //         // 显示对应的内容区域
-            //         const targetId = this.getAttribute('data-target');
-            //         document.getElementById(targetId).classList.add('active');
-                    
-            //         // 在移动设备上点击后关闭菜单
-            //         if (window.innerWidth <= 768) {
-            //             navLinksContainer.classList.remove('active');
-            //         }
-
-            //         // targetSection.scrollIntoView({ behavior: 'smooth' });
-            //     });
-            // });
             
             // 移动端菜单切换
             menuToggle.addEventListener('click', function() {
@@ -413,7 +398,9 @@
                     !e.target.closest('.menu-toggle')) {
                     navLinksContainer.classList.remove('active');
                 }
-            });
+            })
+
+            
         });
     </script>
 </body>

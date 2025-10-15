@@ -339,8 +339,8 @@
         <nav class="navbar">
             <div class="logo">yyc's blog(施工中)</div>
             <ul class="nav-links">
-                <li><a href="#" class="nav-link active" data-target="home">首页</a></li>
-                <li><a href="/tech/" class="nav-link" data-target="tech">技术分享</a></li>
+                <li><a href="/index.html" class="nav-link" data-target="home">首页</a></li>
+                <li><a href="#" class="nav-link active" data-target="tech">技术分享</a></li>
                 <li><a href="/about/" class="nav-link" data-target="about">关于我</a></li>
             </ul>
             <div class="menu-toggle">☰</div>
@@ -349,10 +349,10 @@
 
     <!-- 主要内容区域 -->
     <div class="container">
-        <!-- 首页内容 -->
-        <section id="home" class="content-section active">
-            <h1> Welcom to my world!</h1>
-            <h2 class="section-title">最新文章</h2>
+
+        <!-- 技术分享内容 -->
+        <section id="tech" class="content-section active">
+            <h2 class="section-title">技术分享</h2>
             
             <div class="post-card">
                 <h3 class="post-title">git的使用(test)</h3>
@@ -376,7 +376,7 @@
             // 导航链接点击事件
             // navLinks.forEach(link => {
             //     link.addEventListener('click', function(e) {
-            //         // e.preventDefault();
+            //         e.preventDefault();
                     
             //         // 移除所有链接的active类
             //         navLinks.forEach(l => l.classList.remove('active'));
@@ -396,8 +396,6 @@
             //         if (window.innerWidth <= 768) {
             //             navLinksContainer.classList.remove('active');
             //         }
-
-            //         // targetSection.scrollIntoView({ behavior: 'smooth' });
             //     });
             // });
             
