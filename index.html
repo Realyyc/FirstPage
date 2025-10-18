@@ -86,6 +86,28 @@
             font-size: 1.5rem;
             color: #fff;
         }
+
+        /* 头部装饰图像 */
+        .headimage {
+            max-width: 1200px;
+            margin: 2rem auto;
+            /* padding: 0 5%; */
+        }
+        .headimage-image {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: auto;
+            margin: 20px 0;
+        }
+
+        .headimage-image img{
+            display: block;
+            max-width: 100%;
+            height: auto;
+        }
+
         
         /* 主要内容区域样式 */
         .container {
@@ -308,7 +330,7 @@
         }
     </style>
     <!-- 用户离开页面时改变页面标题 -->
-    <script>document.addEventListener('visibilitychange', function(){if(document.visibilityState=='hidden'){normal_title=document.title;document.title='qwq....';}else{document.title=normal_title;}});</script>
+    <script>document.addEventListener('visibilitychange', function(){if(document.visibilityState=='hidden'){normal_title=document.title;document.title='yyc\'s blog qwq...';}else{document.title=normal_title;}});</script>
     <!-- 移动墨镜 -->
     <script>
       document.addEventListener('DOMContentLoaded', function() {
@@ -327,6 +349,166 @@
             }
         })
       })
+    </script>
+    <!-- 爪印点击特效 -->
+    <script>
+        !(function (e, t, a) {
+            // 动画帧函数：更新所有爪印的状态并移除失效的元素
+            function r() {
+            for (var e = 0; e < s.length; e++)
+                if (s[e].alpha <= 0) {
+                // 从页面中移除元素并从数组中删除
+                t.body.removeChild(s[e].el);
+                s.splice(e, 1);
+                } else {
+                // 更新爪印属性：上移、放大、透明度降低
+                s[e].y--;
+                s[e].scale += 0.003;
+                s[e].alpha -= 0.01;
+                // 应用样式到DOM元素
+                s[e].el.style.cssText =
+                    "left:" +
+                    s[e].x +
+                    "px;top:" +
+                    s[e].y +
+                    "px;opacity:" +
+                    s[e].alpha +
+                    ";transform:scale(" +
+                    s[e].scale +
+                    "," +
+                    s[e].scale +
+                    ");z-index:99999";
+                }
+            // 请求下一帧动画
+            requestAnimationFrame(r);
+            }
+
+            // 重写点击事件：保留原有点击事件并添加爪印效果
+            function n() {
+            // 保存原有的onclick事件
+            var t = "function" == typeof e.onclick && e.onclick;
+            // 重写点击事件
+            e.onclick = function (e) {
+                // 执行原有的点击事件
+                t && t();
+                // 触发爪印生成
+                o(e);
+            };
+            }
+
+            // 创建爪印元素并添加到页面
+            function o(e) {
+            // 创建div元素作为爪印容器
+            var a = t.createElement("div");
+            a.className = "paw-print";
+
+            // 创建掌垫
+            var pad = t.createElement("div");
+            pad.className = "paw-pad";
+            a.appendChild(pad);
+
+            // 创建四个爪趾
+            for (var i = 0; i < 4; i++) {
+                var toe = t.createElement("div");
+                toe.className = "paw-toe";
+                a.appendChild(toe);
+            }
+
+            // 生成并应用随机颜色
+            var color = c();
+            // 直接设置掌垫和爪趾的颜色
+            pad.style.background = color;
+            var toes = a.getElementsByClassName("paw-toe");
+            for (var j = 0; j < toes.length; j++) {
+                toes[j].style.background = color;
+            }
+
+            // 将新爪印添加到数组
+            s.push({
+                el: a,
+                x: e.clientX - 25, // X坐标（居中偏移）
+                y: e.clientY - 25, // Y坐标（居中偏移）
+                scale: 1,
+                alpha: 1,
+                color: color,
+            });
+
+            // 将爪印添加到页面
+            t.body.appendChild(a);
+            }
+
+            // 动态添加样式到页面
+            function i(e) {
+            var a = t.createElement("style");
+            a.type = "text/css";
+            try {
+                a.appendChild(t.createTextNode(e));
+            } catch (t) {
+                // 兼容IE浏览器
+                a.styleSheet.cssText = e;
+            }
+            // 将样式添加到head标签
+            t.getElementsByTagName("head")[0].appendChild(a);
+            }
+
+            // 生成随机RGB颜色
+            function c() {
+            // var r = ~~(20 + Math.random() * 80); // 红通道 20-100
+            // var g = ~~(10 + Math.random() * 60); // 绿通道 10-70
+            // var b = ~~(0 + Math.random() * 40); // 蓝通道 0-40
+            // return "rgb(" + r + "," + g + "," + b + ")";
+            return "rgb(0, 83, 159)"; // 蓝色
+            }
+
+            // 存储所有爪印元素的数组
+            var s = [];
+            // 兼容各浏览器的requestAnimationFrame
+            e.requestAnimationFrame =
+            e.requestAnimationFrame ||
+            e.webkitRequestAnimationFrame ||
+            e.mozRequestAnimationFrame ||
+            e.oRequestAnimationFrame ||
+            e.msRequestAnimationFrame ||
+            function (e) {
+                setTimeout(e, 1e3 / 60);
+            };
+            // 添加爪印的CSS样式（移除了currentColor依赖）
+            i(`
+            .paw-print {
+                position: fixed;
+                width: 30px;
+                height: 30px;
+            }
+            
+            /* 掌垫样式 */
+            .paw-pad {
+                position: absolute;
+                bottom: 0;
+                left: 10px;
+                width: 20px;
+                height: 15px;
+                border-radius: 50% 50% 40% 40%;
+            }
+            
+            /* 爪趾样式 */
+            .paw-toe {
+                position: absolute;
+                width: 9px;
+                height: 9px;
+                border-radius: 50%;
+            }
+            
+            /* 定位四个爪趾 */
+            .paw-toe:nth-child(2) { top: 7px; left: 5px; }
+            .paw-toe:nth-child(3) { top: 4px; left: 14px; }
+            .paw-toe:nth-child(4) { top: 4px; left: 23px; }
+            .paw-toe:nth-child(5) { top: 10px; left: 30px; }
+            `);
+            // 初始化点击事件
+            n();
+            // 启动动画循环
+            r();
+        })(window, document);
     </script>
     <!-- 字体设置 -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -347,10 +529,20 @@
         </nav>
     </header>
 
+    <!-- 头部装饰图像 -->
+     <!-- <div class="headimage">
+        <section class="headimage-image">
+            <img src="./images/eva.jpg">
+        </section>
+     </div> -->
+
     <!-- 主要内容区域 -->
     <div class="container">
         <!-- 首页内容 -->
         <section id="home" class="content-section active">
+            <!-- <section id="home-image" class="container-image">
+                <img src="./images/eva.jpg">
+            </section> -->
             <h1> Welcom to my world!</h1>
             <h2 class="section-title">最新文章</h2>
             
@@ -368,38 +560,8 @@
     <script>
         // 导航栏切换功能
         document.addEventListener('DOMContentLoaded', function() {
-            const navLinks = document.querySelectorAll('.nav-link');
-            const contentSections = document.querySelectorAll('.content-section');
             const menuToggle = document.querySelector('.menu-toggle');
             const navLinksContainer = document.querySelector('.nav-links');
-            
-            // 导航链接点击事件
-            // navLinks.forEach(link => {
-            //     link.addEventListener('click', function(e) {
-            //         // e.preventDefault();
-                    
-            //         // 移除所有链接的active类
-            //         navLinks.forEach(l => l.classList.remove('active'));
-            //         // 添加当前链接的active类
-            //         this.classList.add('active');
-                    
-            //         // 隐藏所有内容区域
-            //         contentSections.forEach(section => {
-            //             section.classList.remove('active');
-            //         });
-                    
-            //         // 显示对应的内容区域
-            //         const targetId = this.getAttribute('data-target');
-            //         document.getElementById(targetId).classList.add('active');
-                    
-            //         // 在移动设备上点击后关闭菜单
-            //         if (window.innerWidth <= 768) {
-            //             navLinksContainer.classList.remove('active');
-            //         }
-
-            //         // targetSection.scrollIntoView({ behavior: 'smooth' });
-            //     });
-            // });
             
             // 移动端菜单切换
             menuToggle.addEventListener('click', function() {
