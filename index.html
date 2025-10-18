@@ -17,6 +17,19 @@
             background-color: #f8f9fa;
             color: #333;
             line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            
+            background-image: url("./images/eva.jpg"); /* Path to your image */
+            background-repeat: no-repeat; /* Prevents tiling */
+            background-size: cover; /* Ensures the image covers the entire screen */
+            background-attachment: fixed; /* Keeps the image fixed during scrolling */
+            background-position: center; /* Centers the image */
+        }
+
+        html, body {
+            height: 100%;
         }
         
         /* 顶部导航栏样式 */
@@ -111,9 +124,11 @@
         
         /* 主要内容区域样式 */
         .container {
-            max-width: 1200px;
+            /* max-width: 1200px; */
+            width: 90%;
             margin: 2rem auto;
             padding: 0 5%;
+            flex: 1 0 auto;
         }
         
         .content-section {
@@ -128,13 +143,13 @@
         .section-title {
             font-size: 2rem;
             margin-bottom: 1.5rem;
-            color: #2c3e50;
+            color: #012242;
             border-left: 4px solid #3498db;
             padding-left: 1rem;
         }
         
         .post-card {
-            background-color: #fff;
+            background-color: #f4f4f4e2;
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
             padding: 1.5rem;
@@ -198,6 +213,52 @@
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         } */
+
+        footer {
+            flex-shrink: 0;
+            background-color: #032b57;
+            color: #e6f2ff;
+            padding: 1.5rem 5%;
+            margin-top: 2rem;
+        }
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .footer-left {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+        .footer-logo {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #fff;
+            text-shadow: 1px 1px 0 rgba(0,0,0,0.3);
+        }
+        .footer-copy {
+            font-size: 0.9rem;
+            color: #cfe9ff;
+        }
+        .footer-links {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .footer-links a {
+            color: #9fd0ff;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .footer-links a:hover {
+            color: #fff;
+            text-decoration: underline;
+        }
         
         /* 联系页面样式 */
         .contact-form {
@@ -283,6 +344,21 @@
             
             .about-image {
                 order: -1;
+            }
+
+            footer {
+                padding: 1rem 4%;
+            }
+            .footer-container {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .footer-links {
+                width: 100%;
+                justify-content: flex-start;
+                flex-wrap: wrap;
+                gap: 0.6rem;
+                margin-top: 0.5rem;
             }
         }
         /* 头像与动画效果 */
@@ -556,6 +632,28 @@
         </section>
 
     </div>
+
+    <!-- 页脚 -->
+    <footer>
+        <div class="footer-container">
+            <div class="footer-left">
+                <div class="footer-logo">yyc's blog</div>
+                <div class="footer-copy">© <span id="year"></span> yyc. 保留所有权利。</div>
+            </div>
+            <div class="footer-links">
+                <a href="mailto:yyc114@qq.com">联系我</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 设置页脚年份
+        (function(){
+            const y = new Date().getFullYear();
+            const el = document.getElementById('year');
+            if (el) el.textContent = y;
+        })();
+    </script>
 
     <script>
         // 导航栏切换功能
