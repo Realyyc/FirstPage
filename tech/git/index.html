@@ -95,16 +95,24 @@
         }
 
         /* 头部装饰图像 */
-        .headimage img{
-            width: 90%;
+        .headimage{
+            width: 100%;
             /* height: 200px; */
-            aspect-ratio: 16 / 9;
-            object-fit: cover;
+            /* aspect-ratio: 16 / 9; */
+            /* object-fit: cover; */
             display: flex;
             
             justify-content: center;
             align-items: center;
             
+        }
+        .headimage img{
+            /* max-width: 1000px; */
+            max-height: 375px;
+            width: 100%;
+            aspect-ratio: 25 / 9;
+            object-fit: cover;
+            /* border-radius: 8px; */
         }
         .post-card img {
             width: 100%;
@@ -433,9 +441,9 @@
             <img src="../../images/eva.jpg">
         </section>
     </div> -->
-    <!-- <div class="headimage">
-        <img src="../../images/eva.jpg">
-    </div> -->
+    <div class="headimage img">
+        <img src="../../images/wolf.jpg">
+    </div>
 
     <!-- 主要内容区域 -->
     <div class="container">
