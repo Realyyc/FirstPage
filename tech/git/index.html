@@ -395,6 +395,137 @@
             top: 70px;
             transform: rotate(-15deg);
         }
+
+        /* 评论区样式 */
+        .comments-section {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            padding: 2rem;
+            margin-top: 3rem;
+        }
+        
+        .comments-title {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: #2c3e50;
+            border-left: 4px solid #3498db;
+            padding-left: 1rem;
+        }
+        
+        .comment-form {
+            margin-bottom: 2rem;
+        }
+        
+        .comment-input-group {
+            margin-bottom: 1rem;
+        }
+        
+        .comment-input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #555;
+        }
+        
+        .comment-input-group input,
+        .comment-input-group textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        .comment-input-group input:focus,
+        .comment-input-group textarea:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        
+        .comment-input-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .comment-submit-btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+        }
+        
+        .comment-submit-btn:hover {
+            background-color: #2980b9;
+        }
+        
+        .comment-submit-btn:disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
+        }
+        
+        .comments-list {
+            margin-top: 2rem;
+        }
+        
+        .comment-item {
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            padding: 1.2rem;
+            margin-bottom: 1rem;
+            border-left: 3px solid #3498db;
+        }
+        
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.8rem;
+        }
+        
+        .comment-author {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .comment-date {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+        
+        .comment-content {
+            color: #555;
+            line-height: 1.6;
+            word-wrap: break-word;
+        }
+        
+        .comment-delete-btn {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 0.4rem 0.8rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            margin-left: 1rem;
+            transition: background-color 0.3s;
+        }
+        
+        .comment-delete-btn:hover {
+            background-color: #c0392b;
+        }
+        
+        .no-comments {
+            text-align: center;
+            color: #95a5a6;
+            padding: 2rem;
+            font-style: italic;
+        }
     </style>
     <!-- 用户离开页面时改变页面标题 -->
     <script>document.addEventListener('visibilitychange', function(){if(document.visibilityState=='hidden'){normal_title=document.title;document.title='yyc\'s blog qwq...';}else{document.title=normal_title;}});</script>
@@ -485,6 +616,29 @@
             </ol>
             <p>&nbsp;</p>
         </section>
+
+        <!-- 评论区 -->
+        <section class="comments-section">
+            <h3 class="comments-title">评论</h3>
+            
+            <div class="comment-form">
+                <div class="comment-input-group">
+                    <label for="comment-name">昵称 *</label>
+                    <input type="text" id="comment-name" placeholder="请输入您的昵称" required>
+                </div>
+                
+                <div class="comment-input-group">
+                    <label for="comment-content">评论内容 *</label>
+                    <textarea id="comment-content" placeholder="请输入您的评论..." required></textarea>
+                </div>
+                
+                <button class="comment-submit-btn" onclick="submitComment()">提交评论</button>
+            </div>
+            
+            <div class="comments-list" id="comments-list">
+                <!-- 评论列表将通过JavaScript动态生成 -->
+            </div>
+        </section>
     </div>
 
     <!-- 页脚 -->
@@ -530,6 +684,111 @@
             })
 
             
+        });
+    </script>
+
+    <!-- 评论功能脚本 -->
+    <script>
+        // 获取当前页面的唯一标识符（基于URL）
+        const pageId = window.location.pathname;
+        const commentsKey = 'blog_comments_' + pageId.replace(/\//g, '_');
+        
+        // 加载评论
+        function loadComments() {
+            const comments = JSON.parse(localStorage.getItem(commentsKey) || '[]');
+            const commentsList = document.getElementById('comments-list');
+            
+            if (comments.length === 0) {
+                commentsList.innerHTML = '<div class="no-comments">暂无评论，快来抢沙发吧！</div>';
+                return;
+            }
+            
+            commentsList.innerHTML = comments.map((comment, index) => `
+                <div class="comment-item">
+                    <div class="comment-header">
+                        <div>
+                            <span class="comment-author">${escapeHtml(comment.name)}</span>
+                            <span class="comment-date">${comment.date}</span>
+                        </div>
+                        <button class="comment-delete-btn" onclick="deleteComment(${index})">删除</button>
+                    </div>
+                    <div class="comment-content">${escapeHtml(comment.content).replace(/\n/g, '<br>')}</div>
+                </div>
+            `).join('');
+        }
+        
+        // 提交评论
+        function submitComment() {
+            const nameInput = document.getElementById('comment-name');
+            const contentInput = document.getElementById('comment-content');
+            
+            const name = nameInput.value.trim();
+            const content = contentInput.value.trim();
+            
+            if (!name || !content) {
+                alert('请填写昵称和评论内容！');
+                return;
+            }
+            
+            // 获取现有评论
+            const comments = JSON.parse(localStorage.getItem(commentsKey) || '[]');
+            
+            // 创建新评论
+            const newComment = {
+                name: name,
+                content: content,
+                date: new Date().toLocaleString('zh-CN', { 
+                    year: 'numeric', 
+                    month: '2-digit', 
+                    day: '2-digit', 
+                    hour: '2-digit', 
+                    minute: '2-digit' 
+                })
+            };
+            
+            // 添加到评论列表（新评论在前）
+            comments.unshift(newComment);
+            
+            // 保存到localStorage
+            localStorage.setItem(commentsKey, JSON.stringify(comments));
+            
+            // 清空输入框
+            nameInput.value = '';
+            contentInput.value = '';
+            
+            // 重新加载评论列表
+            loadComments();
+            
+            alert('评论提交成功！');
+        }
+        
+        // 删除评论
+        function deleteComment(index) {
+            if (!confirm('确定要删除这条评论吗？')) {
+                return;
+            }
+            
+            const comments = JSON.parse(localStorage.getItem(commentsKey) || '[]');
+            comments.splice(index, 1);
+            localStorage.setItem(commentsKey, JSON.stringify(comments));
+            loadComments();
+        }
+        
+        // HTML转义，防止XSS攻击
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+        
+        // 页面加载时加载评论
+        document.addEventListener('DOMContentLoaded', function() {
+            loadComments();
         });
     </script>
 </body>
