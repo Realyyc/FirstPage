@@ -693,9 +693,19 @@
         const pageId = window.location.pathname;
         const commentsKey = 'blog_comments_' + pageId.replace(/\//g, '_');
         
+        // 辅助函数：获取评论列表
+        function getComments() {
+            return JSON.parse(localStorage.getItem(commentsKey) || '[]');
+        }
+        
+        // 辅助函数：保存评论列表
+        function saveComments(comments) {
+            localStorage.setItem(commentsKey, JSON.stringify(comments));
+        }
+        
         // 加载评论
         function loadComments() {
-            const comments = JSON.parse(localStorage.getItem(commentsKey) || '[]');
+            const comments = getComments();
             const commentsList = document.getElementById('comments-list');
             
             if (comments.length === 0) {
@@ -731,7 +741,7 @@
             }
             
             // 获取现有评论
-            const comments = JSON.parse(localStorage.getItem(commentsKey) || '[]');
+            const comments = getComments();
             
             // 创建新评论
             const newComment = {
@@ -750,7 +760,7 @@
             comments.unshift(newComment);
             
             // 保存到localStorage
-            localStorage.setItem(commentsKey, JSON.stringify(comments));
+            saveComments(comments);
             
             // 清空输入框
             nameInput.value = '';
@@ -768,9 +778,9 @@
                 return;
             }
             
-            const comments = JSON.parse(localStorage.getItem(commentsKey) || '[]');
+            const comments = getComments();
             comments.splice(index, 1);
-            localStorage.setItem(commentsKey, JSON.stringify(comments));
+            saveComments(comments);
             loadComments();
         }
         
