@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="scripts/build_tech.py">
+    <title>L2.HTML text · yyc's blog</title>
+    <meta name="description" content="​	使用六级标题可以让内容富有结构和语义:">
+    <link rel="icon" href="../../images/opt/icon-64.png">
+    <link rel="stylesheet" href="../../assets/style.css">
+
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <header>
+        <nav class="navbar">
+            <div class="logo">yyc's blog</div>
+            <ul class="nav-links">
+                <li><a href="../../index.html" class="nav-link">首页</a></li>
+                <li><a href="../" class="nav-link active">技术分享</a></li>
+                <li><a href="../../daily/" class="nav-link">日常分享</a></li>
+                <li><a href="../../about/" class="nav-link">关于我</a></li>
+            </ul>
+            <div class="menu-toggle">☰</div>
+        </nav>
+    </header>
+
+    <div class="headimage">
+        <img src="../../images/opt/wolf-banner.jpg" alt="L2.HTML text" decoding="async" fetchpriority="high">
+    </div>
+
+    <!-- 主要内容区域 -->
+    <div class="container">
+        <article class="article">
+            <h1 class="article-title">L2.HTML text</h1>
+            <div class="post-meta">发布于 2025年12月17日 | 分类: HTML</div>
+            <nav class="prev-next"><a class="pn-link pn-prev" href="../html-l1-basic-html-syntax/"><span class="pn-dir">← 上一篇</span><span class="pn-title">L1.Basic HTML syntax</span></a><span class="pn-pos">2 / 8</span><a class="pn-link pn-next" href="../html-l3-html-document-structure/"><span class="pn-dir">下一篇 →</span><span class="pn-title">L3.HTML document Structure</span></a></nav>
+            <h2>1.标题</h2>
+            <p>​    使用六级标题可以让内容富有结构和语义:</p>
+            <pre><code class="language-html">&lt;h1&gt;Favorite body parts&lt;/h1&gt;
+&lt;h2&gt;brain&lt;/h2&gt;
+&lt;p&gt;The brain Lovely shape and color. Also does thinkin' stuff.&lt;/p&gt;
+&lt;h2&gt;feet&lt;/h2&gt;
+&lt;p&gt;The feet Knobbly and ugly, but useful for getting about.&lt;/p&gt;</code></pre>
+            <p>​    而如下方式则没有特殊的标题语义, 虽然他可能长得很像标题</p>
+            <pre><code class="language-html">&lt;span style="font-size: 32px; margin: 21px 0; display: block;"&gt;
+  Is this a top level heading?
+&lt;/span&gt;</code></pre>
+            <h2>2.重点</h2>
+            <p>​    使用<code>&lt;em&gt;&lt;/em&gt;</code>和<code>&lt;strong&gt;&lt;/strong&gt;</code>突出显示段落中的句子, 前者通常是斜体, 后者通常是粗体.</p>
+            <pre><code class="language-html">&lt;p&gt;I am &lt;em&gt;glad&lt;/em&gt; you weren't &lt;em&gt;late&lt;/em&gt;.&lt;/p&gt;
+&lt;p&gt;This liquid is &lt;strong&gt;highly toxic&lt;/strong&gt;.&lt;/p&gt;</code></pre>
+            <p>​    注意, <code>&lt;b&gt;, &lt;i&gt;, &lt;u&gt;</code>可以做到粗体斜体下划线的效果, 但由于没有语义, 现在已经停止使用了.</p>
+            <h2>3.list</h2>
+            <p>​    html提供了三种list:</p>
+            <pre><code class="language-html">&lt;ol&gt;
+    &lt;li&gt; &lt;/li&gt;
+    &lt;li&gt; &lt;/li&gt;
+    &lt;li&gt; &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;ul&gt;
+    &lt;li&gt;...&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;dl&gt;
+    &lt;dt&gt;...&lt;/dt&gt;
+    &lt;dd&gt;...&lt;/dd&gt;
+    &lt;dt&gt;...&lt;/dt&gt;
+    &lt;dd&gt;...&lt;/dd&gt;
+&lt;/dl&gt;</code></pre>
+            <p>​    分别是<strong>ordered list</strong>, <strong>unordered list</strong>和 <strong>description lists</strong>, 前两者的元素是list item <code>&lt;li&gt;</code>, 后者的元素是description term <code>&lt;dt&gt;</code> 和 description definition <code>&lt;dd&gt;</code></p>
+            <h2>4.More Semantic(omitted)</h2>
+            <p>​    引用, 缩写, 地址(通讯, 物理), 时间, 代码, 上下标...这些在HTML中都有对应的element.</p>
+            <p>​    注意, 引用有两种格式, 一种不外显:</p>
+            <pre><code class="language-html">  &lt;q
+    cite="https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/q"&gt;
+    intended for short quotations that don't require paragraph breaks.
+  &lt;/q&gt;</code></pre>
+            <p>​    这段HTML会给句子自动加上双引号, 但不会显示网址</p>
+            <pre><code class="language-html">&lt;p&gt;
+  According to the
+  &lt;a href="/en-US/docs/Web/HTML/Reference/Elements/blockquote"&gt;
+    &lt;cite&gt;MDN blockquote page&lt;/cite&gt;&lt;/a&gt;:
+&lt;/p&gt;</code></pre>
+            <p>​    使用了<code>&lt;a&gt;</code>(anchor)会产生点击可以进入网址的效果.</p>
+            <nav class="prev-next"><a class="pn-link pn-prev" href="../html-l1-basic-html-syntax/"><span class="pn-dir">← 上一篇</span><span class="pn-title">L1.Basic HTML syntax</span></a><span class="pn-pos">2 / 8</span><a class="pn-link pn-next" href="../html-l3-html-document-structure/"><span class="pn-dir">下一篇 →</span><span class="pn-title">L3.HTML document Structure</span></a></nav>
+            <p class="article-back"><a class="read-more" href="../#a-html-l2-html-text">← 返回技术分享</a></p>
+        </article>
+    </div>
+
+    <!-- 页脚 -->
+    <footer>
+        <div class="footer-container">
+            <div class="footer-left">
+                <div class="footer-logo">yyc's blog</div>
+                <div class="footer-copy">© <span id="year"></span></div>
+            </div>
+            <div class="footer-links">
+                <a href="mailto:yyc114@qq.com">联系我</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 设置页脚年份
+        (function(){
+            const y = new Date().getFullYear();
+            const el = document.getElementById('year');
+            if (el) el.textContent = y;
+        })();
+    </script>
+
+    <script src="../../assets/site.js"></script>
+
+    <script>
+        // 导航栏切换功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuToggle = document.querySelector('.menu-toggle');
+            const navLinksContainer = document.querySelector('.nav-links');
+
+            menuToggle.addEventListener('click', function() {
+                navLinksContainer.classList.toggle('active');
+            });
+
+            document.addEventListener('click', function(e) {
+                if (window.innerWidth <= 768 &&
+                    !e.target.closest('.nav-links') &&
+                    !e.target.closest('.menu-toggle')) {
+                    navLinksContainer.classList.remove('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

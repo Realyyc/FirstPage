@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="scripts/build_tech.py">
+    <title>L5.Images · yyc's blog</title>
+    <meta name="description" content="回顾一下img是一个void element:">
+    <link rel="icon" href="../../images/opt/icon-64.png">
+    <link rel="stylesheet" href="../../assets/style.css">
+
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <header>
+        <nav class="navbar">
+            <div class="logo">yyc's blog</div>
+            <ul class="nav-links">
+                <li><a href="../../index.html" class="nav-link">首页</a></li>
+                <li><a href="../" class="nav-link active">技术分享</a></li>
+                <li><a href="../../daily/" class="nav-link">日常分享</a></li>
+                <li><a href="../../about/" class="nav-link">关于我</a></li>
+            </ul>
+            <div class="menu-toggle">☰</div>
+        </nav>
+    </header>
+
+    <div class="headimage">
+        <img src="../../images/opt/wolf-banner.jpg" alt="L5.Images" decoding="async" fetchpriority="high">
+    </div>
+
+    <!-- 主要内容区域 -->
+    <div class="container">
+        <article class="article">
+            <h1 class="article-title">L5.Images</h1>
+            <div class="post-meta">发布于 2026年1月30日 | 分类: HTML</div>
+            <nav class="prev-next"><a class="pn-link pn-prev" href="../html-l4-links/"><span class="pn-dir">← 上一篇</span><span class="pn-title">L4.Links</span></a><span class="pn-pos">5 / 8</span><a class="pn-link pn-next" href="../html-l6-video-and-audio/"><span class="pn-dir">下一篇 →</span><span class="pn-title">L6.Video and audio</span></a></nav>
+            <h2>Images</h2>
+            <h3>1.Basic Idea</h3>
+            <p>回顾一下img是一个void element:</p>
+            <pre><code class="language-html">&lt;img src="dinosaur.jpg" alt="Dinosaur" /&gt;</code></pre>
+            <p>其中<strong>src</strong>类似anchor中的href, 是一个绝对或相对地址, 或者&lt;a href="https://developer.mozilla.org/en-US/docs/Glossary/CDN"&gt;CDN(Content Delivery Network)&lt;/a&gt;.</p>
+            <p><strong>alt</strong>(alternative text)是防止图片无法加载时, 防止用户漏掉关键信息的方法. 如果图片是装饰性的(如背景图片), 则alt留空即可.</p>
+            <p>同时使用<strong>width</strong>和<strong>height</strong>有助于浏览器在相应的位置留好空位, 防止加载时文字跳来跳去:</p>
+            <pre><code class="language-html">&lt;img
+  src="images/dinosaur.jpg"
+  alt="The head and torso of a dinosaur skeleton;
+          it has a large head with long sharp teeth"
+  width="400"
+  height="341" /&gt;</code></pre>
+            <p>注意要保持图片的aspect ratio.</p>
+            <h3>2.Licensing</h3>
+            <p>网站上发现的图片受到不同的license的保护.</p>
+            <p><strong>All right reserved</strong> Creators of original work such as songs, books, or software often release their work under closed copyright protection. Authors are not required to include a copyright notice or license terms with their work. 你需要获得创造者的同意, 或者支付费用, 或者在fair use的情况使用他们.</p>
+            <p><strong>Permissive</strong> 创造者声明使用诸如Creative Commons License. 这种情况不需要获得同意或者支付费用, 一般有如下使用限制: 标注原始连接和创造者和它使用的license, 非商业等等</p>
+            <p><strong>Public domain</strong> 相当于no rights reserved. 一般标明&lt;a href="https://creativecommons.org/public-domain/cc0/"&gt;CC0&lt;/a&gt;协议以避免歧义</p>
+            <h3>3.figure</h3>
+            <p>使用更高级的元素figure, 可以支持caption:</p>
+            <pre><code class="language-html">&lt;figure&gt;
+  &lt;img
+    src="images/dinosaur.jpg"
+    alt="The head and torso of a dinosaur skeleton;
+            it has a large head with long sharp teeth"
+    width="400"
+    height="341" /&gt;
+
+  &lt;figcaption&gt;
+    A T-Rex on display in the Manchester University Museum.
+  &lt;/figcaption&gt;
+&lt;/figure&gt;</code></pre>
+            <h3>4.CSS背景图片</h3>
+            <p>使用CSS的方法增加装饰性的背景图片:</p>
+            <pre><code class="language-css">p {
+  background-image: url("images/dinosaur.jpg");
+}</code></pre>
+            <nav class="prev-next"><a class="pn-link pn-prev" href="../html-l4-links/"><span class="pn-dir">← 上一篇</span><span class="pn-title">L4.Links</span></a><span class="pn-pos">5 / 8</span><a class="pn-link pn-next" href="../html-l6-video-and-audio/"><span class="pn-dir">下一篇 →</span><span class="pn-title">L6.Video and audio</span></a></nav>
+            <p class="article-back"><a class="read-more" href="../#a-html-l5-images">← 返回技术分享</a></p>
+        </article>
+    </div>
+
+    <!-- 页脚 -->
+    <footer>
+        <div class="footer-container">
+            <div class="footer-left">
+                <div class="footer-logo">yyc's blog</div>
+                <div class="footer-copy">© <span id="year"></span></div>
+            </div>
+            <div class="footer-links">
+                <a href="mailto:yyc114@qq.com">联系我</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 设置页脚年份
+        (function(){
+            const y = new Date().getFullYear();
+            const el = document.getElementById('year');
+            if (el) el.textContent = y;
+        })();
+    </script>
+
+    <script src="../../assets/site.js"></script>
+
+    <script>
+        // 导航栏切换功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuToggle = document.querySelector('.menu-toggle');
+            const navLinksContainer = document.querySelector('.nav-links');
+
+            menuToggle.addEventListener('click', function() {
+                navLinksContainer.classList.toggle('active');
+            });
+
+            document.addEventListener('click', function(e) {
+                if (window.innerWidth <= 768 &&
+                    !e.target.closest('.nav-links') &&
+                    !e.target.closest('.menu-toggle')) {
+                    navLinksContainer.classList.remove('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

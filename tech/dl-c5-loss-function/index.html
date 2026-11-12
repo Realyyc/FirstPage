@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="scripts/build_tech.py">
+    <title>C5.Loss Function · yyc's blog</title>
+    <meta name="description" content="​	对判别式做拟合，注意下式的x是分布参数而不是自变量：">
+    <link rel="icon" href="../../images/opt/icon-64.png">
+    <link rel="stylesheet" href="../../assets/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+            onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],macros:{'\\part':'\\partial','\\tr':'\\operatorname{tr}','\\grad':'\\nabla'}});"></script>
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <header>
+        <nav class="navbar">
+            <div class="logo">yyc's blog</div>
+            <ul class="nav-links">
+                <li><a href="../../index.html" class="nav-link">首页</a></li>
+                <li><a href="../" class="nav-link active">技术分享</a></li>
+                <li><a href="../../daily/" class="nav-link">日常分享</a></li>
+                <li><a href="../../about/" class="nav-link">关于我</a></li>
+            </ul>
+            <div class="menu-toggle">☰</div>
+        </nav>
+    </header>
+
+    <div class="headimage">
+        <img src="../../images/opt/wolf-banner.jpg" alt="C5.Loss Function" decoding="async" fetchpriority="high">
+    </div>
+
+    <!-- 主要内容区域 -->
+    <div class="container">
+        <article class="article">
+            <h1 class="article-title">C5.Loss Function</h1>
+            <div class="post-meta">发布于 2025年5月31日 | 分类: 深度学习</div>
+            <nav class="prev-next"><a class="pn-link pn-prev" href="../dl-c4-deep-neural-network/"><span class="pn-dir">← 上一篇</span><span class="pn-title">C4.Deep Neural Network</span></a><span class="pn-pos">3 / 18</span><a class="pn-link pn-next" href="../dl-c6-fitting-models/"><span class="pn-dir">下一篇 →</span><span class="pn-title">C6.Fitting models</span></a></nav>
+            <h2>1.多分类与分布映射复习</h2>
+            <p>​    对判别式做拟合，注意下式的$x$是分布参数而不是自变量：</p>
+            <div class="math-display">$$Pr(y|x)$$</div>
+            <p>​    其中，$x$是分布的参数，比如$B(n,p)$中的$p$或者$N(\mu,\sigma^2)$中的$\mu,\sigma$，前者的$y$是$n$维的、后者的$y$是$\infin$维的(输出的是概率密度)，这两个例子只有参数没有自变量，可以把$\mu=f[x_i,\phi]$就有自变量了</p>
+            <p>​    多维仿射变换$\mathbb{R}^n\rightarrow \mathbb{R}^m$对结果做一个归一化也是一种分布，对应上面的参数$x$是变换矩阵的权值，但结果显然是$m-1$维的(有限维的)</p>
+            <h2>2.极大似然</h2>
+            <p>​    极大似然希望最大化某个参数下分布的概率：</p>
+            <div class="math-display">$$Pr(y_1,y_2,...,y_I|x_1,x_2,...,x_I)=\prod_{i=1}^IPr(y_i|x_i)$$</div>
+            <p>​    等式用到了所有$y$是相同分布的和独立的假设</p>
+            <h3>2.1.单变量回归(omitted)</h3>
+            <h3>2.2.二分类(omitted)</h3>
+            <h3>2.3.多分类(omitted)</h3>
+            <h2>3.Cross Entropy Loss(omitted)</h2>
+            <p>​    经过 <em>Kullback-Leibler divergence</em> 函数和 <em>Dirac delta</em> 函数可以推导出Cross Entropy Loss和极大似然是等价的。</p>
+            <h2>4.损失函数总结</h2>
+            <p>​    损失函数只是在映射后再做了一次映射$\mathbb{R}^m \rightarrow \mathbb{R}$，需要注意的是损失函数是性能度量，需要比较灵敏的反映预测与实际的差异性。</p>
+            <p>​    计算数值梯度甚至不用考虑损失函数的结构，向后传播梯度的损失函数也仅仅是开头一小步，可能会和soft-max合为一层，随机梯度每次计算梯度损失函数$L(x,t)$都要重新计算。</p>
+            <nav class="prev-next"><a class="pn-link pn-prev" href="../dl-c4-deep-neural-network/"><span class="pn-dir">← 上一篇</span><span class="pn-title">C4.Deep Neural Network</span></a><span class="pn-pos">3 / 18</span><a class="pn-link pn-next" href="../dl-c6-fitting-models/"><span class="pn-dir">下一篇 →</span><span class="pn-title">C6.Fitting models</span></a></nav>
+            <p class="article-back"><a class="read-more" href="../#a-dl-c5-loss-function">← 返回技术分享</a></p>
+        </article>
+    </div>
+
+    <!-- 页脚 -->
+    <footer>
+        <div class="footer-container">
+            <div class="footer-left">
+                <div class="footer-logo">yyc's blog</div>
+                <div class="footer-copy">© <span id="year"></span></div>
+            </div>
+            <div class="footer-links">
+                <a href="mailto:yyc114@qq.com">联系我</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 设置页脚年份
+        (function(){
+            const y = new Date().getFullYear();
+            const el = document.getElementById('year');
+            if (el) el.textContent = y;
+        })();
+    </script>
+
+    <script src="../../assets/site.js"></script>
+
+    <script>
+        // 导航栏切换功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuToggle = document.querySelector('.menu-toggle');
+            const navLinksContainer = document.querySelector('.nav-links');
+
+            menuToggle.addEventListener('click', function() {
+                navLinksContainer.classList.toggle('active');
+            });
+
+            document.addEventListener('click', function(e) {
+                if (window.innerWidth <= 768 &&
+                    !e.target.closest('.nav-links') &&
+                    !e.target.closest('.menu-toggle')) {
+                    navLinksContainer.classList.remove('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

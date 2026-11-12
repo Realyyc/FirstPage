@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="scripts/build_tech.py">
+    <title>C14.Unsupervised learning summary · yyc's blog</title>
+    <meta name="description" content="​	下图介绍了3种无监督模型的关系:">
+    <link rel="icon" href="../../images/opt/icon-64.png">
+    <link rel="stylesheet" href="../../assets/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+            onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],macros:{'\\part':'\\partial','\\tr':'\\operatorname{tr}','\\grad':'\\nabla'}});"></script>
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <header>
+        <nav class="navbar">
+            <div class="logo">yyc's blog</div>
+            <ul class="nav-links">
+                <li><a href="../../index.html" class="nav-link">首页</a></li>
+                <li><a href="../" class="nav-link active">技术分享</a></li>
+                <li><a href="../../daily/" class="nav-link">日常分享</a></li>
+                <li><a href="../../about/" class="nav-link">关于我</a></li>
+            </ul>
+            <div class="menu-toggle">☰</div>
+        </nav>
+    </header>
+
+    <div class="headimage">
+        <img src="../../images/opt/wolf-banner.jpg" alt="C14.Unsupervised learning summary" decoding="async" fetchpriority="high">
+    </div>
+
+    <!-- 主要内容区域 -->
+    <div class="container">
+        <article class="article">
+            <h1 class="article-title">C14.Unsupervised learning summary</h1>
+            <div class="post-meta">发布于 2025年7月1日 | 分类: 深度学习</div>
+            <nav class="prev-next"><a class="pn-link pn-prev" href="../dl-c13-graph-neural-network/"><span class="pn-dir">← 上一篇</span><span class="pn-title">C13.Graph Neural Network</span></a><span class="pn-pos">12 / 18</span><a class="pn-link pn-next" href="../dl-c15-gnerative-adversarial-networks/"><span class="pn-dir">下一篇 →</span><span class="pn-title">C15.Gnerative adversarial networks</span></a></nav>
+            <h2>1.无监督学习的分类</h2>
+            <p>​    下图介绍了3种无监督模型的关系:</p>
+            <img src="image-20250701115027484.png" alt="image-20250701115027484" style="zoom:50%;" loading="lazy" decoding="async">
+            <p>​    generative model生成和输入数据相似的数据, probabilistic generative model对输入数据建立了一个分布, 这种分布除了用于生成带有随机性的数据外, 还可以用于评估数据.</p>
+            <h2>2.无监督学习的性能度量</h2>
+            <h3>2.1.方向与动机</h3>
+            <p>​    <strong>Efficient sampling</strong></p>
+            <p>​    <strong>High-quality sampling</strong></p>
+            <p>​    <strong>Coverage</strong> 相当于泛化性能</p>
+            <p>​    <strong>Well-behaved latent space</strong></p>
+            <p>​    <strong>Disentangled latent space</strong></p>
+            <p>​    <strong>Efficient likelihood computation</strong></p>
+            <h3>2.2.数字指标</h3>
+            <p>​    <strong>Test likelihood</strong> 对于probabilistic models, 可以直接让模型测量test set的可能性来评估模型的性能.</p>
+            <p>​    <strong>Inception score</strong> 额外训练一个监督的分类模型, 将generative model的输出$\{\bold x^*_i\}$输入到该分类模型中, 可以得到①每张图片的多分类概率$Pr(y|\bold x^*_i)$, ②所有输出图片多分类概率的平均概率$Pr(y)=\frac{1}{I}\sum_{i=1}^I Pr(y|\bold x^*_i)$.</p>
+            <img src="image-20250702092709959.png" alt="image-20250702092709959" style="zoom:50%;" loading="lazy" decoding="async">
+            <p>​    我们想让生成模型输出现实世界的物体, 而且等可能的输出各种物体, 即想要单张图片的的分类概率极端, 多张照片的平均分类概率均匀. 这种想法可以通过如下数值表示:</p>
+            <div class="math-display">$$IS = \exp\left[ \frac{1}{I} \sum_{i=1}^I D_{KL}[Pr(y|\bold x^*_i)\| Pr(y)] \right]$$</div>
+            <p>​    该式子被称为<strong>KL-divergence</strong>, 具体的表达omitted.</p>
+            <p>​    <strong>Fréchet inception distance</strong> 对generative model的输出和数据集分别进行混合高斯拟合, 再对拟合的两个分布计算Fréchet distance.</p>
+            <p>​    $\textcolor{red}{\bold{Error}}$?但是这个distance并没有对原始数据的距离建模, 而是对初始分类网络的深层节点的输出???????</p>
+            <p>​    <strong>Manifold precision & recall</strong> 测量一群输入数据和generative model的一群输出数据相邻的情况, precision相当于查准率, recall相当于查全率:</p>
+            <img src="image-20250702094739684.png" alt="image-20250702094739684" style="zoom:50%;" loading="lazy" decoding="async">
+            <p>​    上图橙色synthesized区域就是generative model生成的数据区域.</p>
+            <p>​    判断邻居的方法只需要知道开球半径的大小, 可以通过同类的最近的k个邻居的平均距离得到.</p>
+            <nav class="prev-next"><a class="pn-link pn-prev" href="../dl-c13-graph-neural-network/"><span class="pn-dir">← 上一篇</span><span class="pn-title">C13.Graph Neural Network</span></a><span class="pn-pos">12 / 18</span><a class="pn-link pn-next" href="../dl-c15-gnerative-adversarial-networks/"><span class="pn-dir">下一篇 →</span><span class="pn-title">C15.Gnerative adversarial networks</span></a></nav>
+            <p class="article-back"><a class="read-more" href="../#a-dl-c14-unsupervised-learning-summary">← 返回技术分享</a></p>
+        </article>
+    </div>
+
+    <!-- 页脚 -->
+    <footer>
+        <div class="footer-container">
+            <div class="footer-left">
+                <div class="footer-logo">yyc's blog</div>
+                <div class="footer-copy">© <span id="year"></span></div>
+            </div>
+            <div class="footer-links">
+                <a href="mailto:yyc114@qq.com">联系我</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 设置页脚年份
+        (function(){
+            const y = new Date().getFullYear();
+            const el = document.getElementById('year');
+            if (el) el.textContent = y;
+        })();
+    </script>
+
+    <script src="../../assets/site.js"></script>
+
+    <script>
+        // 导航栏切换功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuToggle = document.querySelector('.menu-toggle');
+            const navLinksContainer = document.querySelector('.nav-links');
+
+            menuToggle.addEventListener('click', function() {
+                navLinksContainer.classList.toggle('active');
+            });
+
+            document.addEventListener('click', function(e) {
+                if (window.innerWidth <= 768 &&
+                    !e.target.closest('.nav-links') &&
+                    !e.target.closest('.menu-toggle')) {
+                    navLinksContainer.classList.remove('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

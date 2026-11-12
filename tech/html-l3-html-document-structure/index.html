@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="scripts/build_tech.py">
+    <title>L3.HTML document Structure · yyc's blog</title>
+    <meta name="description" content="所有网站的body内部有着类似的结构, HTML提供了对应的element以便语义化:">
+    <link rel="icon" href="../../images/opt/icon-64.png">
+    <link rel="stylesheet" href="../../assets/style.css">
+
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <header>
+        <nav class="navbar">
+            <div class="logo">yyc's blog</div>
+            <ul class="nav-links">
+                <li><a href="../../index.html" class="nav-link">首页</a></li>
+                <li><a href="../" class="nav-link active">技术分享</a></li>
+                <li><a href="../../daily/" class="nav-link">日常分享</a></li>
+                <li><a href="../../about/" class="nav-link">关于我</a></li>
+            </ul>
+            <div class="menu-toggle">☰</div>
+        </nav>
+    </header>
+
+    <div class="headimage">
+        <img src="../../images/opt/tiger-banner.jpg" alt="L3.HTML document Structure" decoding="async" fetchpriority="high">
+    </div>
+
+    <!-- 主要内容区域 -->
+    <div class="container">
+        <article class="article">
+            <h1 class="article-title">L3.HTML document Structure</h1>
+            <div class="post-meta">发布于 2025年12月20日 | 分类: HTML</div>
+            <nav class="prev-next"><a class="pn-link pn-prev" href="../html-l2-html-text/"><span class="pn-dir">← 上一篇</span><span class="pn-title">L2.HTML text</span></a><span class="pn-pos">3 / 8</span><a class="pn-link pn-next" href="../html-l4-links/"><span class="pn-dir">下一篇 →</span><span class="pn-title">L4.Links</span></a></nav>
+            <h2>1.Semantic element</h2>
+            <p>所有网站的body内部有着类似的结构, HTML提供了对应的element以便语义化:</p>
+            <ul><li>header: <code>&lt;header&gt;</code></li><li>navigation bar: <code>&lt;nav&gt;</code></li><li>main content: <code>&lt;main&gt;</code>, 里面还有其他element: <code>&lt;article&gt;</code>, <code>&lt;section&gt;</code>, <code>&lt;div&gt;</code></li><li>sidebar: <code>&lt;aside&gt;</code>(一般放在main里面)</li><li>footer: <code>&lt;footer&gt;</code></li></ul>
+            <pre><code class="language-html">&lt;!doctype html&gt;
+&lt;html lang="en-US"&gt;
+  &lt;head&gt;
+    &lt;meta charset="utf-8" /&gt;
+    &lt;meta name="viewport" content="width=device-width" /&gt;
+
+    &lt;title&gt;My page title&lt;/title&gt;
+    &lt;link
+      href="https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300|Sonsie+One"
+      rel="stylesheet" /&gt;
+    &lt;link rel="stylesheet" href="style.css" /&gt;
+  &lt;/head&gt;
+
+  &lt;body&gt;
+    &lt;!-- The main header used across all the pages of our website --&gt;
+
+    &lt;header&gt;
+      &lt;h1&gt;Header&lt;/h1&gt;
+    &lt;/header&gt;
+
+    &lt;nav&gt;
+      &lt;ul&gt;
+        &lt;li&gt;&lt;a href="#"&gt;Home&lt;/a&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;a href="#"&gt;Our team&lt;/a&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;a href="#"&gt;Projects&lt;/a&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;a href="#"&gt;Contact&lt;/a&gt;&lt;/li&gt;
+      &lt;/ul&gt;
+
+      &lt;!-- A Search form: another common non-linear
+           way to navigate through a site. --&gt;
+
+      &lt;form&gt;
+        &lt;input type="search" name="q" placeholder="Search query" /&gt;
+        &lt;input type="submit" value="Go!" /&gt;
+      &lt;/form&gt;
+    &lt;/nav&gt;
+
+    &lt;!-- Our page's main content --&gt;
+    &lt;main&gt;
+      &lt;!-- An article --&gt;
+      &lt;article&gt;
+        &lt;h2&gt;Article heading&lt;/h2&gt;
+
+        &lt;p&gt;
+          Lorem ipsum dolor sit amet, consectetur adipisicing elit. Donec a diam
+          lectus. Set sit amet ipsum mauris. Maecenas congue ligula as quam
+          viverra nec consectetur ant hendrerit. Donec et mollis dolor. Praesent
+          et diam eget libero egestas mattis sit amet vitae augue. Nam tincidunt
+          congue enim, ut porta lorem lacinia consectetur.
+        &lt;/p&gt;
+
+        &lt;section&gt;
+          &lt;h3&gt;Subsection&lt;/h3&gt;
+
+          &lt;p&gt;
+            Donec ut librero sed accu vehicula ultricies a non tortor. Lorem
+            ipsum dolor sit amet, consectetur adipisicing elit. Aenean ut
+            gravida lorem. Ut turpis felis, pulvinar a semper sed, adipiscing id
+            dolor.
+          &lt;/p&gt;
+
+          &lt;p&gt;
+            Pelientesque auctor nisi id magna consequat sagittis. Curabitur
+            dapibus, enim sit amet elit pharetra tincidunt feugiat nist
+            imperdiet. Ut convallis libero in urna ultrices accumsan. Donec sed
+            odio eros.
+          &lt;/p&gt;
+        &lt;/section&gt;
+
+        &lt;section&gt;
+          &lt;h3&gt;Another subsection&lt;/h3&gt;
+
+          &lt;p&gt;
+            Donec viverra mi quis quam pulvinar at malesuada arcu rhoncus. Cum
+            soclis natoque penatibus et manis dis parturient montes, nascetur
+            ridiculus mus. In rutrum accumsan ultricies. Mauris vitae nisi at
+            sem facilisis semper ac in est.
+          &lt;/p&gt;
+
+          &lt;p&gt;
+            Vivamus fermentum semper porta. Nunc diam velit, adipscing ut
+            tristique vitae sagittis vel odio. Maecenas convallis ullamcorper
+            ultricied. Curabitur ornare, ligula semper consectetur sagittis,
+            nisi diam iaculis velit, is fringille sem nunc vet mi.
+          &lt;/p&gt;
+        &lt;/section&gt;
+      &lt;/article&gt;
+
+      &lt;!-- the aside content can also be nested within the main content --&gt;
+      &lt;aside&gt;
+        &lt;h2&gt;Related&lt;/h2&gt;
+
+        &lt;ul&gt;
+          &lt;li&gt;&lt;a href="#"&gt;Oh I do like to be beside the seaside&lt;/a&gt;&lt;/li&gt;
+          &lt;li&gt;&lt;a href="#"&gt;Oh I do like to be beside the sea&lt;/a&gt;&lt;/li&gt;
+          &lt;li&gt;&lt;a href="#"&gt;Although in the North of England&lt;/a&gt;&lt;/li&gt;
+          &lt;li&gt;&lt;a href="#"&gt;It never stops raining&lt;/a&gt;&lt;/li&gt;
+          &lt;li&gt;&lt;a href="#"&gt;Oh well…&lt;/a&gt;&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/aside&gt;
+    &lt;/main&gt;
+
+    &lt;!-- The footer that is used across all the pages of our website --&gt;
+
+    &lt;footer&gt;
+      &lt;p&gt;©Copyright 2050 by nobody. All rights reversed.&lt;/p&gt;
+    &lt;/footer&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</code></pre>
+            <p>​    值得注意的是, <code>&lt;header&gt;</code>代表了该页面内容介绍性的语言, 这里用了一个<code>&lt;h1&gt;</code>, 一般每个页面的header都不同, 而title是整个网站的metadata.</p>
+            <p>​    <code>&lt;aside&gt;</code>包含了不直接与内容相关的, 但有助于辅助内容的更多信息</p>
+            <img src="sample-website.png" alt="sample-website" style="zoom:50%;" loading="lazy" decoding="async">
+            <h2>2.Non-semantic wrappers</h2>
+            <p>​    接下来两个是在html找不到合适的语义, 或者干脆没有语义的结构: <code>&lt;div&gt;</code>, <code>&lt;span&gt;</code></p>
+            <pre><code class="language-html">&lt;p&gt;
+  The King walked drunkenly back to his room at 01:00, the beer doing nothing to
+  aid him as he staggered through the door.
+  &lt;span class="editor-note"&gt;
+    [Editor's note: At this point in the play, the lights should be down low].
+  &lt;/span&gt;
+&lt;/p&gt;</code></pre>
+            <pre><code class="language-html">&lt;div class="shopping-cart"&gt;
+  &lt;h2&gt;Shopping cart&lt;/h2&gt;
+  &lt;ul&gt;
+    &lt;li&gt;
+      &lt;p&gt;
+        &lt;a href=""&gt;&lt;strong&gt;Silver earrings&lt;/strong&gt;&lt;/a&gt;: $99.95.
+      &lt;/p&gt;
+      &lt;img src="../products/3333-0985/thumb.png" alt="Silver earrings" /&gt;
+    &lt;/li&gt;
+    &lt;li&gt;…&lt;/li&gt;
+  &lt;/ul&gt;
+  &lt;p&gt;Total cost: $237.89&lt;/p&gt;
+&lt;/div&gt;</code></pre>
+            <h2>3.others</h2>
+            <p>​    <code>&lt;br&gt;</code> and <code>&lt;hr&gt;</code>是很少用的Semantic element.</p>
+            <p>​    <code>&lt;br&gt;</code>强迫一个段落内进行分行, 通常用于地址或者诗歌(一般直接用另一个段落就可以的emm)</p>
+            <pre><code class="language-html">&lt;p&gt;
+  There once was a man named O'Dell&lt;br /&gt;
+  Who loved to write HTML&lt;br /&gt;
+  But his structure was bad, his semantics were sad&lt;br /&gt;
+  and his markup didn't read very well.
+&lt;/p&gt;</code></pre>
+            <p>​    <code>&lt;hr&gt;</code>代表内容主题的改变(一般直接用另一个section或者另一个page)</p>
+            <pre><code class="language-html">&lt;p&gt;
+  Ron was backed into a corner by the marauding netherbeasts. Scared, but
+  determined to protect his friends, he raised his wand and prepared to do
+  battle, hoping that his distress call had made it through.
+&lt;/p&gt;
+&lt;hr /&gt;
+&lt;p&gt;
+  Meanwhile, Harry was sitting at home, staring at his royalty statement and
+  pondering when the next spin off series would come out, when an enchanted
+  distress letter flew through his window and landed in his lap. He read it
+  hazily and sighed; "better get back to work then", he mused.
+&lt;/p&gt;</code></pre>
+            <p>​    这显示出来一般是一条横线.</p>
+            <nav class="prev-next"><a class="pn-link pn-prev" href="../html-l2-html-text/"><span class="pn-dir">← 上一篇</span><span class="pn-title">L2.HTML text</span></a><span class="pn-pos">3 / 8</span><a class="pn-link pn-next" href="../html-l4-links/"><span class="pn-dir">下一篇 →</span><span class="pn-title">L4.Links</span></a></nav>
+            <p class="article-back"><a class="read-more" href="../#a-html-l3-html-document-structure">← 返回技术分享</a></p>
+        </article>
+    </div>
+
+    <!-- 页脚 -->
+    <footer>
+        <div class="footer-container">
+            <div class="footer-left">
+                <div class="footer-logo">yyc's blog</div>
+                <div class="footer-copy">© <span id="year"></span></div>
+            </div>
+            <div class="footer-links">
+                <a href="mailto:yyc114@qq.com">联系我</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 设置页脚年份
+        (function(){
+            const y = new Date().getFullYear();
+            const el = document.getElementById('year');
+            if (el) el.textContent = y;
+        })();
+    </script>
+
+    <script src="../../assets/site.js"></script>
+
+    <script>
+        // 导航栏切换功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuToggle = document.querySelector('.menu-toggle');
+            const navLinksContainer = document.querySelector('.nav-links');
+
+            menuToggle.addEventListener('click', function() {
+                navLinksContainer.classList.toggle('active');
+            });
+
+            document.addEventListener('click', function(e) {
+                if (window.innerWidth <= 768 &&
+                    !e.target.closest('.nav-links') &&
+                    !e.target.closest('.menu-toggle')) {
+                    navLinksContainer.classList.remove('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

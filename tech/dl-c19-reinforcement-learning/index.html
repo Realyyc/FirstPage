@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="scripts/build_tech.py">
+    <title>C19.Reinforcement Learning · yyc's blog</title>
+    <meta name="description" content="动机 agent, environment, FSM, 目标, 回报率">
+    <link rel="icon" href="../../images/opt/icon-64.png">
+    <link rel="stylesheet" href="../../assets/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+            onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],macros:{'\\part':'\\partial','\\tr':'\\operatorname{tr}','\\grad':'\\nabla'}});"></script>
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <header>
+        <nav class="navbar">
+            <div class="logo">yyc's blog</div>
+            <ul class="nav-links">
+                <li><a href="../../index.html" class="nav-link">首页</a></li>
+                <li><a href="../" class="nav-link active">技术分享</a></li>
+                <li><a href="../../daily/" class="nav-link">日常分享</a></li>
+                <li><a href="../../about/" class="nav-link">关于我</a></li>
+            </ul>
+            <div class="menu-toggle">☰</div>
+        </nav>
+    </header>
+
+    <div class="headimage">
+        <img src="../../images/opt/wolf-banner.jpg" alt="C19.Reinforcement Learning" decoding="async" fetchpriority="high">
+    </div>
+
+    <!-- 主要内容区域 -->
+    <div class="container">
+        <article class="article">
+            <h1 class="article-title">C19.Reinforcement Learning</h1>
+            <div class="post-meta">发布于 2025年7月7日 | 分类: 深度学习</div>
+            <nav class="prev-next"><a class="pn-link pn-prev" href="../dl-c18-diffusion-models/"><span class="pn-dir">← 上一篇</span><span class="pn-title">C18.Diffusion models</span></a><span class="pn-pos">17 / 18</span><a class="pn-link pn-next" href="../dl-c20-why-dose-deep-net-work/"><span class="pn-dir">下一篇 →</span><span class="pn-title">C20.Why dose deep net work</span></a></nav>
+            <p><strong>动机</strong> agent, environment, FSM, 目标, 回报率</p>
+            <p><strong>Rmk</strong> 简单的已知的环境完全可以通过逻辑和博弈得到最优策略(Dijkstra), 复杂的未知的环境下当前使用神经网络与损失函数的范式完全就是深度学习加上一个特制的输出头.</p>
+            <p>与DL的不同之处:</p>
+            <ol><li>有些方法可能不用向后传播更新参数, 而是求梯度后与目标损失做乘法更新参数</li><li>训练数据无限, 没有训练集和测试集, 只要有仿真环境, 每一次训练后的验证就是测试</li></ol>
+            <p>Value Learning的几个装备:</p>
+            <ol><li>DP: 现在expected return和未来expected return的依赖关系(更新策略和损失函数的主要依据)</li><li>MC: 采样路径得到expected return近似值 (同时适用model based和model free)</li><li>TD/Q: on/off policy (此外, 每做一个action都计算一次近似值)</li><li>期望回报$\R^{d_s}\rightarrow \R$, Q值$\R^{d_s \times d_a} \rightarrow \R$, polocy $\R^{d_s \times d_a} \rightarrow \R$($d_a$方向归一化), 一般$d_a$大小固定, 可能是无穷. 前者直接拟合期望回报, 后者基于似然.</li></ol>
+            <div class="math-display">$$r_t+ \gamma \cdot q(s_{t+1},a_{t+1}) - q(s_t, a_t) \rightarrow 0\\
+            -\left(\sum_{i=t}^T \gamma^{i-t} r_i\right) \cdot \log \pi(s_t,a_t) \rightarrow 0$$</div>
+            <p>这里的$a$离散或连续都行, 但一般连续的a使用policy多一点?</p>
+            <h2>1.Markov process</h2>
+            <p>​    <strong>markov process</strong> 只根据上一个状态得出下一个状态, 状态之间转换通过*transition probability* $Pr(s_{t+1}|s_t)$进行, 最终可以得到状态的序列$s_1, s_2, s_3, ...$</p>
+            <p>​    <strong>markov reward process</strong>  在markov prosecc的基础上再引入一个概率$Pr(r_{t+1}|s_t)$, 即当前状态reward的分布. 最终可以得到序列$s_1, r_2,s_2, r_3,...$(即假定reward在离开当前状态时得到)</p>
+            <p>​    <strong>markov decision process</strong> 在markov reward process的基础上再引入actions $a_t$ 可以改变transition probability, 即transition probability可以重写为$Pr(s_{t+1}|s_t, a_t)$, 当前的reward也依赖于action$Pr(t_{t+1}|s_t, a_t)$</p>
+            <p>​    <strong>partially observable markov decision process</strong> 状态$s$不能直接看到, 每次得到一个observation $Pr(o_t|s_t)$, 通过observation得到状态$s$</p>
+            <p>​    <strong>policy</strong> policy就是决定actions的规则. 这种规则可以是确定性的, 也可以是一个分布, 即一个*stochastic policy* $\pi[a|s]$返回在可选择的action中返回一个概率分布, 或者一个 <em>deterministic policy</em> $\pi[a|s]$在可选择的action中返回一个one-hot编码. 此外, A <em>stationary policy</em> depends only on the current state. A <em>non-stationary policy</em> also depends on the time step.</p>
+            <p>​    至此, agent和environment可以形成一个循环(某种agnet-environment回合制, 很像FSM)</p>
+            <img src="image-20250707152344152.png" alt="image-20250707152344152" style="zoom:50%;" loading="lazy" decoding="async">
+            <h2>2.Expected return</h2>
+            <h3>2.1.符号</h3>
+            <p>​    <strong>return</strong> return$G_t$指未来所有时间内的reward的和:</p>
+            <div class="math-display">$$G_t=\sum_{k=0}^{\infin}\gamma^{k}r_{t+k+1}$$</div>
+            <p>​    $\gamma\in(0,1]$, 实现了时间越远的reward权值越小.</p>
+            <p>​    <strong>expected return</strong> 给定policy, 使用expeted return $v$ 来判断当前状态的好坏:</p>
+            <div class="math-display">$$v[s_t|\pi]=\mathbb E[G_t|s_t,\pi]$$</div>
+            <p>​    <strong>action value</strong> expected return from executing action $a_t$ in state $s_t$</p>
+            <div class="math-display">$$q[s_t,a_t|\pi]=\mathbb E[G_t|s_t,a_t,\pi]$$</div>
+            <p>​    <strong>optimal policy</strong> 对于一个完全可观测的马尔可夫链(MDPs), 总是有最佳的policy使得expeted return和action value最大:</p>
+            <div class="math-display">$$v^*[s_t]=\max_{\pi} \mathbb E[G_t|s_t,\pi]\\
+            q^*[s_t,a_t]=\max_\pi \mathbb E[G_t|s_t,a_t,\pi]$$</div>
+            <p>​    注意, 使用最佳的action还可以用于更新policy:</p>
+            <div class="math-display">$$\pi[a_t|s_t] \leftarrow \arg\max_{a_t}(q^*[s_t,a_t])$$</div>
+            <h3>2.2.bellman equation</h3>
+            <p>​    虽然有些时候可能无法直接写出v和q, 但肯定可以写出这两者的关系:</p>
+            <p>​    当前expected return可以写成当前action value的加和</p>
+            <div class="math-display">$$v[s_t]=\sum_{a_t} \pi[a_t|s_t]q[s_t,a_t]$$</div>
+            <p>​    当前所有action value可以写成下一步expeted return的加和:</p>
+            <div class="math-display">$$q[s_t,a_t]=r[s_t,a_t]+\gamma\cdot\sum_{s_{t+1}}Pr(s_{t+1}|s_t,a_t)v[s_{t+1}]$$</div>
+            <p>​    其中gamma是一个超参数.</p>
+            <p>​    将上述两个等式相互代入即可得到bellman equation:</p>
+            <div class="math-display">$$v[s_t]=\sum_{a_t} \pi[a_t|s_t]\Bigg ( r[s_t,a_t]+\gamma\cdot\sum_{s_{t+1}}Pr(s_{t+1}|s_t,a_t)v[s_{t+1}] \Bigg)\\
+            q[s_t,a_t]=r[s_t,a_t]+\gamma\cdot\sum_{s_{t+1}}Pr(s_{t+1}|s_t,a_t)\Bigg( \sum_{a_{t+1}} \pi[a_{t+1}|s_{t+1}]q[s_{t+1},a_{t+1}] \Bigg)$$</div>
+            <h2>3.Tabular reinforcement learning</h2>
+            <p>​    表格化的RL分为两种: model-based 和 model-free, model-based指MDP是已知的, 用DP就可以解决, model-free指MDP需要自己进行估计.</p>
+            <h3>3.1.dynamic programing</h3>
+            <blockquote><p><strong>复习-DP算法</strong></p>
+            <p>DP算法得到一个字典Dict从而避免重复计算, 而字典的得到需要知道元素的依赖关系和状态转移方程, 以一个合适的顺序遍历得到字典.</p></blockquote>
+            <p>​    DP假设我们有完美的知识关于transition and reward structure, 只需要根据bellmen equation计算即可:</p>
+            <p>​    <strong>policy evaluation</strong> 计算所有状态s的expeted return v:</p>
+            <div class="math-display">$$v[s_t] \leftarrow \sum_{a_t} \pi[a_t|s_t]\Bigg ( r[s_t,a_t]+\gamma\cdot\sum_{s_{t+1}}Pr(s_{t+1}|s_t,a_t)v[s_{t+1}] \Bigg)\\$$</div>
+            <p>​    可见这里的v的依赖关系出现了环: $v[s_t]\leftarrow v[s_{t+1}]\leftarrow v[s_{t+2}]$, 有可能$s_{t+2}=s_t$. 所以这其实不是经典的DP, 只能将v全部初始化为0, 忽略依赖关系遍历整个v, 重复遍历直到v收敛.</p>
+            <p>​    注意这里还用到了pi, 又多了一个相互依赖的关系.</p>
+            <p>​    <strong>policy improvement</strong> 根据expected return直接贪心得到policy:</p>
+            <div class="math-display">$$\pi[a_t|s_t]\leftarrow \arg\max_{a_t}\Bigg ( r[s_t,a_t]+\gamma\cdot\sum_{s_{t+1}}Pr(s_{t+1}|s_t,a_t)v[s_{t+1}] \Bigg)$$</div>
+            <p>​    pi初始化为随机, 在v更新后再更新pi.</p>
+            <p>​    由于相互依赖, pi和v的更新也需要不断迭代, 直到收敛.</p>
+            <p>学校作业里只用一个表格$v(s)$就能搞定, policy直接使用能达到下一个最大$v[s_t]$的动作即可:</p>
+            <div class="math-display">$$v[s_t] \leftarrow \max_a \{ r[s,a] + \gamma \cdot v[s_{t+1}] \}~~~where~s_{t+1} = Env[s_t,a_t]$$</div>
+            <h3>3.2.Monte Carlo method</h3>
+            <p>假设不知道MDP的任何知识, 需要通过实验累积:</p>
+            <p>随机游走采样得到数据, 一次随机游走得到一条路径, 根据路径上的平均return更新v (可以全程随机游走, 也可以第一轮随机游走后更新v, 后面再根据v游走):</p>
+            <div class="math-display">$$v \leftarrow \frac1n \sum_{i=1}^n v_i$$</div>
+            <p>(最后更新policy)实际上value learning不需要更新policy, 直接greedy按照表格上的value来就行:</p>
+            <div class="math-display">$$\pi[a|s]\leftarrow \arg\max_a[v[s|a]]$$</div>
+            <p>​    <strong>on-policy method</strong> 使用根据历史记录得到的policy的最佳选项, 对于没有探索的部分永远也不会探索.</p>
+            <p>​    <strong>off-policy method</strong> 使用一个带有随机化的policy $\pi'$ 并不断更新, 随机化可以用于探索未知的部分, 最终逼近最优policy $\pi$</p>
+            <h3>3.3.Temporal difference methods</h3>
+            <p>同样假设不知道MDP的任何知识, 需要通过实验累积, 但每走一步就更新一次policy</p>
+            <p>​    <strong>SARSA (State-Action-Reward-State-Action)</strong> 是一个on-policy算法:</p>
+            <div class="math-display">$$q[s_t,a_t]\leftarrow q[s_t,a_t]+\alpha\big (r[s_t,a_t]+\gamma\cdot q[s_{t+1},a_{t+1}]-q[s_t,a_t] \big)$$</div>
+            <p>​    其中, $\alpha\in\R$是learning rate, $a_{t+1}$由on-policy可以直接得到, namely:</p>
+            <div class="math-display">$$r[s_t,a_t]+\gamma\cdot q[s_{t+1},a_{t+1}]-q[s_t,a_t] \rightarrow 0$$</div>
+            <p>​    <strong>Q-learning</strong> 是一个off-policy算法:</p>
+            <div class="math-display">$$q[s_t,a_t]\leftarrow q[s_t,a_t]+\alpha\big (r[s_t,a_t]+\gamma\cdot \max_a  q[s_{t+1},a]-q[s_t,a_t] \big)$$</div>
+            <p>​    其中, max a指policy $\pi'$ 的最优解</p>
+            <p>Epsilon greedy:</p>
+            <pre><code class="language-pyhton">if torch.rand(1) &lt; epsilon:
+        a = torch.randint(0, action_dim, (1,), device=device).item()
+    else:
+        with torch.no_grad():
+            a_value = q_net.forward(torch.from_numpy(state).to(device))
+            a = torch.argmax(a_value).item()
+    return int(a)</code></pre>
+            <h2>4.fitting Q-learning</h2>
+            <p>​    将action value用dl模型代替 $q(\bold s_t, a_t,\boldsymbol \phi)$, 注意这里的$\bold s_t$变成了向量, 将平方误差定义为(大概就是最大化当前reward和未来reward, greedy选择动作):</p>
+            <div class="math-display">$$L[\phi]=\big (r[s_t,a_t]+\gamma\cdot \max_a  q[s_{t+1},a,\phi]-q[s_t,a_t,\phi] \big)^2$$</div>
+            <p>​    则参数更新规则为:</p>
+            <div class="math-display">$$\phi \leftarrow \phi+\alpha\big (r[s_t,a_t]+\gamma\cdot \max_a  q[s_{t+1},a,\phi]-q[s_t,a_t,\phi] \big)\frac{\part q[s_t,a_t,\phi]}{\part \phi}$$</div>
+            <p>​    <strong>注意</strong> 新的方法与原来的Q-learning有一点不同: 原来的Q-learning直接更新q, 可以在理论上保证收敛, 而fitting Q-learning更新的是phi, 无法保证收敛.</p>
+            <h3>学校作业-TargetNet</h3>
+            <p>两个Q模型$q, q'$, (实则是三层$MLP: \R^{d_s}\rightarrow \R^{d_a}, q(s_t,a_t)=(MLP(s_t))_t$) 参数分别是$\phi, \psi$, 其中$\phi$用梯度向后传播更新, $\psi$用一种另类的方法更新, $MLP$输出的动作是离散的(一个向量, 下标是动作, 值是概率)</p>
+            <div class="math-display">$$L[\phi] = \| q(s_t, a_t) - (\gamma \cdot \max_{a} q'(s_{t+1}, a)+r)  \|_1\\
+            \psi \leftarrow (1-\tau) \psi + \tau \phi$$</div>
+            <p>where $ a_t= \arg \max_a q(s_t,a)$, $s_{t+1}= Environment(s_t,a_t)$, 实验中默认参数是$\gamma = 0.99, \tau = 0.005$</p>
+            <h3>4.1.Application: ATARI game</h3>
+            <p>​    <strong>映射</strong> 直接输出当前状态下所有action的q</p>
+            <img src="image-20250725132522750.png" alt="image-20250725132522750" style="zoom:50%;" loading="lazy" decoding="async">
+            <p>​    <strong>特殊优化</strong></p>
+            <p>​    1.游戏的分数变化简化为+-1</p>
+            <p>​    2.更新网络不仅仅依靠 $&lt;s_t, a_t, r_{t+1},s_{t+1}&gt;$, 而是将过去所有的情况都存起来, 抽样更新网络</p>
+            <p>​    3.固定参数$\phi^-$促进收敛:</p>
+            <div class="math-display">$$\phi \leftarrow \phi+\alpha\big (r[s_t,a_t]+\gamma\cdot \max_a  q[s_{t+1},a,\phi]-q[s_t,a_t,\phi^-] \big)\frac{\part q[s_t,a_t,\phi]}{\part \phi}$$</div>
+            <h3>4.2.double Q-learning</h3>
+            <p>​    在Q-learning中, q值的随机初始化会导致模型在初次遇到未更新的q时的选择变得十分不稳定</p>
+            <div class="math-display">$$q[s_t,a_t]\leftarrow q[s_t,a_t]+\alpha\big (r[s_t,a_t]+\gamma\cdot \max_a q[s_{t+1},a]-q[s_t,a_t] \big)$$</div>
+            <p>​    同时训练两个模型减少这种不稳定:</p>
+            <div class="math-display">$$q_1[s_t,a_t]\leftarrow q_1[s_t,a_t]+\alpha\big (r[s_t,a_t]+\gamma\cdot  q_2[s_{t+1},\arg\max_a[q_1[s_{t+1},a]]]-q_1[s_t,a_t] \big)\\
+            q_2[s_t,a_t]\leftarrow q_2[s_t,a_t]+\alpha\big (r[s_t,a_t]+\gamma\cdot  q_1[s_{t+1},\arg\max_a[q_2[s_{t+1},a]]]-q_2[s_t,a_t] \big)\\$$</div>
+            <p>​    训练两个相同结构不同参数的模型$q(s,a,\phi_1),q(s,a,\phi_2)$:</p>
+            <div class="math-display">$$\phi_1 \leftarrow \phi_1+\alpha\big (r[s_t,a_t]+\gamma\cdot  q[s_{t+1},\arg\max_a[q[s_{t+1},a,\phi_1]],\phi_2]-q[s_t,a_t,\phi_1] \big)\frac{\part q[s_t,a_t,\phi_1]}{\part \phi_1} \\
+            \phi_2 \leftarrow \phi_2+\alpha\big (r[s_t,a_t]+\gamma\cdot  q[s_{t+1},\arg\max_a[q[s_{t+1},a,\phi_2]],\phi_1]-q[s_t,a_t,\phi_2] \big)\frac{\part q[s_t,a_t,\phi_2]}{\part \phi_2} \\$$</div>
+            <h3>学校作业-Dual DQN</h3>
+            <div class="math-display">$$q_\phi(s_t, a_t) = V(s_t) + A(s_t,a_t) - \frac{1}{|a|} \sum_a A(s_t,a)\\
+            V(s_t)= MLP_1(s_t)\\
+            A(s_t,a_t) = MLP_2(s_1, a_t)$$</div>
+            <h2>5.Policy gradient method</h2>
+            <p>​    Q-learning通过学习action value更新policy. 而 policy based method 直接学习一个 policy $\pi(a_t|s_t,\theta)$. 此处的policy输出是一个概率$Pr(a_t|s_t)$, 这是为了引入一点随机性.</p>
+            <p>​    <strong>Rmk</strong> 似乎和Q-learning差不多</p>
+            <h3>5.1.loss funciton and gradient update</h3>
+            <p>​    设一条路径(trajectory)为 $\tau=[s_1,a_1,s_2,a_2,...,s_T,a_T]$, 则 $Pr(\tau,\theta)$由policy $\pi(a_t|s_t,\theta)$ 和 state evolution function $Pr(s_{t+1}|s_t,a_t)$决定, 可以写成:</p>
+            <div class="math-display">$$Pr(\tau,\theta)=Pr(s_1)\prod_{t=1}^T \pi[a_t|s_t,\theta]Pr(s_{t+1}|s_t,a_t)$$</div>
+            <p>​    则优化算法可以写为让expeted return $r[\tau]$ 最大, 在众多可能的tau中:</p>
+            <div class="math-display">$$\theta=\arg\max_\theta [\mathbb E_\tau[r[\tau]]]=arg\max_\theta \int Pr(\tau|\theta)r[\tau]d\tau$$</div>
+            <p>​    其中, expected return $r[\tau]=\sum_{t=1}^T r_{t+1}$. (和之前的不一样)</p>
+            <p>​    则更新方法为:</p>
+            <div class="math-display">$$\begin{aligned}
+            \theta &amp;\leftarrow \theta + \alpha \cdot \frac{\part}{\part \theta}\int Pr(\tau|\theta)r[\tau]d\tau\\
+            &amp;= \theta + \alpha \cdot \int \frac{\part Pr(\tau|\theta)}{\part \theta}r[\tau]d\tau\\
+            &amp;= \theta + \alpha \cdot \int Pr(\tau|\theta) \frac{1}{Pr(\tau|\theta)} \frac{\part Pr(\tau|\theta)}{\part \theta}r[\tau]d\tau\\
+            &amp;\approx \theta + \alpha \cdot \frac1I\sum_{i=1}^I \frac{1}{Pr(\tau_i|\theta)} \frac{\part Pr(\tau_i|\theta)}{\part \theta}r[\tau_i]\\
+            \end{aligned}$$</div>
+            <p>​    最后一行使用Manto Carlo方法近似, 通过进行$I$次实验(episode)得到积分的近似.</p>
+            <p>​    又, 利用恒等式:</p>
+            <div class="math-display">$$\frac{\part}{\part}$$</div>
+            <p>​    原式有:</p>
+            <div class="math-display">$$\theta \leftarrow \theta + \alpha \cdot \frac1I\sum_{i=1}^I  \frac{\part \log Pr(\tau_i|\theta)}{\part \theta}r[\tau_i]\\$$</div>
+            <p>​    再代入$Pr(\tau|\theta)$, 得:</p>
+            <div class="math-display">$$\log Pr(\tau|\theta)=$$</div>
+            <p>​    最终有:</p>
+            <div class="math-display">$$\theta \leftarrow \theta + \alpha \cdot \frac1I\sum_{i=1}^I \sum_{t=1}^T  \frac{\part \log \pi(a_{it}|s_{it},\theta)}{\part \theta} \sum_{k=t}^T r_{i,k}\\$$</div>
+            <p>对应一个什么损失函数呢:</p>
+            <div class="math-display">$$\mathcal L_{policy} = -\log \pi (a_{it}|s_{it},\theta) \cdot \sum_{k=t}^T r_{i,k}$$</div>
+            <h3>5.2.REINFORCE algorithm</h3>
+            <p>​    REINFORCE 是一种算法(不明白为什么要大写, 似乎只是上一节的一点点改进), 每次根据当前的pi走完一个episode后, 将整个episode循环一遍进行参数更新.</p>
+            <p>​    不同于上一节的是, 这里用的expeted return和本章开头介绍的保持一致, 不同于上一节的简单将未来reward相加:</p>
+            <div class="math-display">$$r[\tau_{it}]=\sum_{k=t+1}^T \gamma^{k-t-1}r_{i,k}$$</div>
+            <p>​    在一个trajectory的第t步进行如下参数更新:</p>
+            <div class="math-display">$$\theta \leftarrow \theta + \alpha \cdot \gamma^t \frac{\part \log \pi(a_{it}|s_{it},\theta)}{\part \theta} r[\tau_{it}] \\$$</div>
+            <p>​    上式也带了一个gamma.</p>
+            <h3>5.3.Baselines优化</h3>
+            <p>​    policy gradient算法不稳定(variance 较大), 在更新中添加一个baseline b:</p>
+            <div class="math-display">$$\theta \leftarrow \theta + \alpha \cdot \frac1I\sum_{i=1}^I \sum_{t=1}^T  \frac{\part \log \pi(a_{it}|s_{it},\theta)}{\part \theta} (r[\tau_{it}]-b) \\$$</div>
+            <p>​    很容易证明, 只要b与action无关, 上式对损失函数的最优值没有影响:</p>
+            <div class="math-display">$$\mathbb E_{\tau}[\sum_{t=1}^T  \frac{\part \log \pi(a_{it}|s_{it},\theta)}{\part \theta} \cdot b]=0$$</div>
+            <p>​    选择一个可以添加稳定性的b需要:</p>
+            <div class="math-display">$$b=\sum \frac{\sum}{\sum}$$</div>
+            <p>​    实践中一般使用:</p>
+            <div class="math-display">$$b=\frac1I\sum_i r[\tau_i]$$</div>
+            <h3>5.4.State-dependent baseline</h3>
+            <p>​    baseline depend on state:</p>
+            <div class="math-display">$$\theta \leftarrow \theta + \alpha \cdot \frac1I\sum_{i=1}^I \sum_{t=1}^T  \frac{\part \log \pi(a_{it}|s_{it},\theta)}{\part \theta} (r[\tau_{it}]-b[s_{it}]) \\$$</div>
+            <p>​    令b为未来所有reward之和, 可以恰当的消除总reward很大对算法的剧烈波动.</p>
+            <p>​    使用一个神经网络进行未来reward之和的拟合, 损失函数为:</p>
+            <div class="math-display">$$L[\phi]=\sum\sum\Bigg( b[s_{it},\phi]-\sum_{j=t}^T r_{i,j+1} \Bigg)^2$$</div>
+            <h2>6.Actor-critic methods</h2>
+            <p>​    不同于上一节的REINFORCE算法(需要走完整个trajectory再回头进行更新, 相当于q-learning中的Monte Carlo), 而是直接在每一步进行更新. 是一个temporal difference方法(即不通过实验).</p>
+            <p>​    由于未来的reward不知道, 再加一个神经网络用语拟合未来的reward $v[s_{i,t+1},\phi]$ (类似上一节的baceline):</p>
+            <div class="math-display">$$r[\tau_{it}]\approx r_{i,t+1}+\gamma \cdot v[s_{i,t+1},\phi]$$</div>
+            <p>​    更新方法为:</p>
+            <div class="math-display">$$\theta \leftarrow \theta + \alpha \cdot \frac1I\sum_{i=1}^I \sum_{t=1}^T  \frac{\part \log \pi(a_{it}|s_{it},\theta)}{\part \theta} (r_{i,t+1}+\gamma \cdot v[s_{i,t+1},\phi]-v[s_{i,t},\phi]) \\$$</div>
+            <p>​    最后减去的v相当于上节的baseline.</p>
+            <p>​    使用如下损失函数得到该v:</p>
+            <div class="math-display">$$L[\phi]=\sum\sum(r_{i,t+1}+\gamma \cdot v[s_{i,t+1},\phi]-v[s_{i,t},\phi])^2$$</div>
+            <p>​    <strong>Rmk</strong> 通常, actor-critic不会直接拿来用, 而是先使用一些实验数据训练再用.</p>
+            <h3>学校作业-PPO</h3>
+            <p>使用两个神经网络, 一个输出action的均值 $MLP_1:\R^{d_s} \rightarrow \R^{d_a}$, 用于得到action的正态分布, 于此同时正态分布的方差直接使用一个可学习的参数, 另一个输出expected return(value) $MLP_2: \R^{d_s} \rightarrow \R$ . 实验中$MLP_1$输出的动作是一维的连续值(数值代表动作, 概率密度还需要另一个函数), $\pi(s_t)\sim \mathcal N(MLP_1(s_t), \sigma^2), v(s_t) = MLP_2(s_t)$</p>
+            <p>每采完一条路径再更新模型, 对于使用上一轮模型选择动作采样得到的路径记录每一步的$s_t,a_t,r(s_t)=R[t], v(s_t)=V[t]$, 每条采样路径计算advantage:</p>
+            <div class="math-display">$$Advantages[t] = R[t] + \gamma \cdot V[t+1] - V[t] + \gamma\cdot \lambda_{gae} \cdot Advantage[t+1]$$</div>
+            <p>then 对于每一步, the loss function is:</p>
+            <div class="math-display">$$\mathcal L_{policy} = -Advantages[t]\cdot \frac{\pi(s_t,a_t)}{\pi_{old}(s_t,a_t)},~\mathcal L_{value}=\frac12(V[t]-R[t])^2    ,~\mathcal L_{entropy}=-Ent[\mathcal N(a,\sigma^2)]\\
+            \mathcal L = \mathcal L_{policy}+ \alpha \mathcal L_{value}+\beta \mathcal L_{entropy}$$</div>
+            <p>where $\pi_{old}$是训练前保存的概率密度(在第一个min-batch中$r$必然为1). 上述中$\mathcal L_{policy}$的Advantage和$\pi_{old}$不进行向后传播, 其余均进行向后传播. 模型促进熵增是为了让模型积极探索.</p>
+            <p><strong>Rmk</strong> 这里 $V[t]$ 拟合的是Reward, 不是Q, 所以不会出现 $R[t] + \gamma \cdot V[t+1] - V[t] \rightarrow 0$ 的情况.</p>
+            <p>此外还有将动作映射到合法区间的函数和一些对 $Advantage[t]$ 和 $V[t]$ 限制到一定范围的操作.</p>
+            <h2>7.Offline reinforcement learning</h2>
+            <p>​    在Q-learning和policy gradient中只使用历史数据进行训练十分常见, 因为实时学习现实世界的设备昂贵或者时间花费大.</p>
+            <p>​    通过历史数据对其中的步骤进行预测, 和transformer decoder如出一辙. 将每一步的s, a, R做成word embedding ($R=\sum_{t=t'}^T r_{t}$), 加上position embedding和masked-selfattatention</p>
+            <h2>学校作业-多智能体</h2>
+            <p>全局状态</p>
+            <div class="math-display">$$\dim(s) = \# agent \times state\_ per\_agent\\
+            q(s,a,agent\_idx)\\
+            mixq(q) = \sum_{i}q(s,a,i)$$</div>
+            <p>实际的实现$q(s',a)$, $s'=concat(s, onehot(agnet\_idx))$</p>
+            <h2>§Problem</h2>
+            <h3>Problem19.2</h3>
+            <p>​    Prove the policy improvement theorem. Consider changing from policy $π$ to policy $π '$ , where for state $s_t$ the new policy $π '$ chooses the action that maximizes the expected return:</p>
+            <div class="math-display">$$\pi[a_t|s_t]\leftarrow \arg\max_{a_t}\Big[r[s_t,a_t]+\gamma\cdot\sum_{s_{t+1}} Pr(s_{t+1}|s_t,a_t)v[s_{t+1}|\pi] \Big]$$</div>
+            <p>​    and for all other states, the policies are the same. Show that the value $v[s_t|π]$ for the original policy must be less than or equal to $v[s_t|π ' ]$ for the new policy (notation indicates using $π '$ for state $s_t$ and $π$ thereafter):</p>
+            <div class="math-display">$$v[s_t|\pi]\le q[s_t,\pi'[a_t|s_t]\Big |\pi]\\
+            =\mathbb E_{\pi'}[r_{t+1}+\gamma\cdot v[s_{t+1}|\pi]]$$</div>
+            <p>​    <strong>Proof</strong> 将上式重复代入即可.</p>
+            <h3>Problem19.5</h3>
+            <p>​    When the learning rate α is one, the Q-Learning update is given by:</p>
+            <div class="math-display">$$f[q[s,a]]=r[s,a]+\gamma\cdot\max_a[q[s',a]]$$</div>
+            <p>​    Show that this is a contraction mapping (equation 16.30) so that:</p>
+            <div class="math-display">$$\Big \|f[q_1[s,a]]-f[q_2[s,a]] \Big \|_\infin &lt; \Big \|q_1[s,a]-q_2[s,a] \Big \|_\infin$$</div>
+            <p>​    where $||•||_∞$ represents the $ℓ_∞$ norm. It follows that a fixed point will exist by Banach’s theorem Vector norms and that the updates will eventually converge.</p>
+            <p>​    <strong>Proof</strong> ? 无穷norm要用在向量上吧.</p>
+            <h3>Problem19.7</h3>
+            <p>​    Suppose that we want to estimate a quantity $E[a]$ from samples $a_1, a_2 . . . a_I$ . Consider that we also have paired samples $b_1, b_2 . . . b_I$ that are samples that co-vary with a where $E[b] = µ_b$. We define a new variable:</p>
+            <div class="math-display">$$a'=a-c(b-\mu_b)$$</div>
+            <p>​    Show that $Var[a ' ] ≤ Var[a]$ when the constant $c$ is chosen judiciously. Find an expression for the optimal value of $c$.</p>
+            <p>​    <strong>Proof</strong></p>
+            <div class="math-display">$$\begin{aligned}
+            Var(a')&amp;=Var(a-cb+c\mu_b)\\
+            &amp;=Var(a-cb)\\
+            &amp;=Var(a)+c^2Var(b)-2cCov(a,b)\\
+            \end{aligned}$$</div>
+            <p>​    当$c^2Var(b) \le 2cCov(a,b)$ 立得 $Var[a ' ] ≤ Var[a]$.</p>
+            <p>​    由二次方程立得, 当:</p>
+            <div class="math-display">$$c=-\frac{-2Cov(a,b)}{2Var(b)}=\frac{Cov(a,b)}{Var(b)}$$</div>
+            <p>​    时有最小值.</p>
+            <nav class="prev-next"><a class="pn-link pn-prev" href="../dl-c18-diffusion-models/"><span class="pn-dir">← 上一篇</span><span class="pn-title">C18.Diffusion models</span></a><span class="pn-pos">17 / 18</span><a class="pn-link pn-next" href="../dl-c20-why-dose-deep-net-work/"><span class="pn-dir">下一篇 →</span><span class="pn-title">C20.Why dose deep net work</span></a></nav>
+            <p class="article-back"><a class="read-more" href="../#a-dl-c19-reinforcement-learning">← 返回技术分享</a></p>
+        </article>
+    </div>
+
+    <!-- 页脚 -->
+    <footer>
+        <div class="footer-container">
+            <div class="footer-left">
+                <div class="footer-logo">yyc's blog</div>
+                <div class="footer-copy">© <span id="year"></span></div>
+            </div>
+            <div class="footer-links">
+                <a href="mailto:yyc114@qq.com">联系我</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 设置页脚年份
+        (function(){
+            const y = new Date().getFullYear();
+            const el = document.getElementById('year');
+            if (el) el.textContent = y;
+        })();
+    </script>
+
+    <script src="../../assets/site.js"></script>
+
+    <script>
+        // 导航栏切换功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuToggle = document.querySelector('.menu-toggle');
+            const navLinksContainer = document.querySelector('.nav-links');
+
+            menuToggle.addEventListener('click', function() {
+                navLinksContainer.classList.toggle('active');
+            });
+
+            document.addEventListener('click', function(e) {
+                if (window.innerWidth <= 768 &&
+                    !e.target.closest('.nav-links') &&
+                    !e.target.closest('.menu-toggle')) {
+                    navLinksContainer.classList.remove('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

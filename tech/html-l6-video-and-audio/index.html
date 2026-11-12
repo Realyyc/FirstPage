@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="scripts/build_tech.py">
+    <title>L6.Video and audio · yyc's blog</title>
+    <meta name="description" content="">
+    <link rel="icon" href="../../images/opt/icon-64.png">
+    <link rel="stylesheet" href="../../assets/style.css">
+
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <header>
+        <nav class="navbar">
+            <div class="logo">yyc's blog</div>
+            <ul class="nav-links">
+                <li><a href="../../index.html" class="nav-link">首页</a></li>
+                <li><a href="../" class="nav-link active">技术分享</a></li>
+                <li><a href="../../daily/" class="nav-link">日常分享</a></li>
+                <li><a href="../../about/" class="nav-link">关于我</a></li>
+            </ul>
+            <div class="menu-toggle">☰</div>
+        </nav>
+    </header>
+
+    <div class="headimage">
+        <img src="../../images/opt/wolf-banner.jpg" alt="L6.Video and audio" decoding="async" fetchpriority="high">
+    </div>
+
+    <!-- 主要内容区域 -->
+    <div class="container">
+        <article class="article">
+            <h1 class="article-title">L6.Video and audio</h1>
+            <div class="post-meta">发布于 2026年1月31日 | 分类: HTML</div>
+            <nav class="prev-next"><a class="pn-link pn-prev" href="../html-l5-images/"><span class="pn-dir">← 上一篇</span><span class="pn-title">L5.Images</span></a><span class="pn-pos">6 / 8</span><a class="pn-link pn-next" href="../html-l7-table/"><span class="pn-dir">下一篇 →</span><span class="pn-title">L7.table</span></a></nav>
+            <h2>1.video</h2>
+            <pre><code class="language-html">&lt;video src="rabbit320.webm" controls&gt;
+  &lt;p&gt;
+    Your browser doesn't support HTML video. Here is a
+    &lt;a href="rabbit320.webm"&gt;link to the video&lt;/a&gt; instead.
+  &lt;/p&gt;
+&lt;/video&gt;</code></pre>
+            <p><strong>src</strong>类似于img中的src</p>
+            <p><strong>controls</strong>表示用户可以控制视频播放, 而控制的interface由浏览器默认, 或者自己通过js构建</p>
+            <p>包含在video element中的<code>&lt;p&gt;</code>是<strong>fallback content</strong>, 和img中的alt一样, 在视频无法播放时会显示这段文字.</p>
+            <h2>2.video format</h2>
+            <p>常见的视频格式诸如OGG, WAV, MP4 and WebM被称为<strong>container formats</strong>, 一个container formats通常包含了metadata, audio tracks, video tracks, text tracks.</p>
+            <p>audio tracks会使用audio codec压缩audio, 同理video tracks.</p>
+            <p><strong>e.g.</strong></p>
+            <ol><li>A WebM container typically packages Vorbis or Opus audio with VP8/VP9 video. This is supported in all modern browsers, though older versions may not work.</li><li>An MP4 container often packages AAC or MP3 audio with H.264 video. This is also supported in all modern browsers.</li><li>The Ogg container tends to use Vorbis audio and Theora video. This is best supported in Firefox and Chrome, but has basically been superseded by the better quality WebM format.</li></ol>
+            <p>同时包含多个格式可以提高在不同设备上成功播放视频的概率:</p>
+            <pre><code class="language-html">&lt;video controls&gt;
+  &lt;source src="rabbit320.mp4" type="video/mp4" /&gt;
+  &lt;source src="rabbit320.webm" type="video/webm" /&gt;
+  &lt;p&gt;
+    Your browser doesn't support this video. Here is a
+    &lt;a href="rabbit320.mp4"&gt;link to the video&lt;/a&gt; instead.
+  &lt;/p&gt;
+&lt;/video&gt;</code></pre>
+            <p>上面我们把<code>&lt;source&gt;</code>分离出来, 变成<code>&lt;video&gt;</code>内的一个元素, source中的<code>type</code>不是必须的, 但有了type可以帮助浏览器直接下载可以播放的格式, 而不是一个一个下载然后尝试.</p>
+            <h2>3.other video features</h2>
+            <pre><code class="language-html">&lt;video
+  controls
+  width="400"
+  height="400"
+  autoplay
+  loop
+  muted
+  preload="auto"
+  poster="poster.png"&gt;
+  &lt;source src="rabbit320.mp4" type="video/mp4" /&gt;
+  &lt;source src="rabbit320.webm" type="video/webm" /&gt;
+  &lt;p&gt;
+    Your browser doesn't support this video. Here is a
+    &lt;a href="rabbit320.mp4"&gt;link to the video&lt;/a&gt; instead.
+  &lt;/p&gt;
+&lt;/video&gt;</code></pre>
+            <p>其中, <strong>poster</strong>属性是视频的封面.</p>
+            <p><strong>preload</strong>控制缓存方式:</p>
+            <ul><li><code>"none"</code> does not buffer the file</li><li><code>"auto"</code> buffers the media file</li><li><code>"metadata"</code> buffers only the metadata for the file</li></ul>
+            <h2>4.audio</h2>
+            <pre><code class="language-html">&lt;audio controls&gt;
+  &lt;source src="viper.mp3" type="audio/mp3" /&gt;
+  &lt;source src="viper.ogg" type="audio/ogg" /&gt;
+  &lt;p&gt;
+    Your browser doesn't support this audio file. Here is a
+    &lt;a href="viper.mp3"&gt;link to the audio&lt;/a&gt; instead.
+  &lt;/p&gt;
+&lt;/audio&gt;</code></pre>
+            <p>audio element和video几乎一样,  除了不支持<code>width</code> and <code>height</code> and <code>poster</code></p>
+            <h2>5.video text tracks</h2>
+            <p><strong>WebVTT</strong>文件使用text string记录了视频字幕, 这些字符串通常被称为<strong>cues</strong>.</p>
+            <p><strong>Cues</strong>有不同的类型, 包括了: subtitles(外文翻译), captions, timed descriptions</p>
+            <pre><code>WEBVTT
+
+1
+00:00:22.230 --&gt; 00:00:24.606
+This is the first subtitle.
+
+2
+00:00:30.739 --&gt; 00:00:34.074
+This is the second.
+
+…</code></pre>
+            <p>通过<strong>track</strong>元素调用:</p>
+            <pre><code class="language-html">&lt;video controls&gt;
+  &lt;source src="example.mp4" type="video/mp4" /&gt;
+  &lt;source src="example.webm" type="video/webm" /&gt;
+  &lt;track kind="subtitles" src="subtitles_es.vtt" srclang="es" label="Spanish" /&gt;
+&lt;/video&gt;</code></pre>
+            <nav class="prev-next"><a class="pn-link pn-prev" href="../html-l5-images/"><span class="pn-dir">← 上一篇</span><span class="pn-title">L5.Images</span></a><span class="pn-pos">6 / 8</span><a class="pn-link pn-next" href="../html-l7-table/"><span class="pn-dir">下一篇 →</span><span class="pn-title">L7.table</span></a></nav>
+            <p class="article-back"><a class="read-more" href="../#a-html-l6-video-and-audio">← 返回技术分享</a></p>
+        </article>
+    </div>
+
+    <!-- 页脚 -->
+    <footer>
+        <div class="footer-container">
+            <div class="footer-left">
+                <div class="footer-logo">yyc's blog</div>
+                <div class="footer-copy">© <span id="year"></span></div>
+            </div>
+            <div class="footer-links">
+                <a href="mailto:yyc114@qq.com">联系我</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 设置页脚年份
+        (function(){
+            const y = new Date().getFullYear();
+            const el = document.getElementById('year');
+            if (el) el.textContent = y;
+        })();
+    </script>
+
+    <script src="../../assets/site.js"></script>
+
+    <script>
+        // 导航栏切换功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuToggle = document.querySelector('.menu-toggle');
+            const navLinksContainer = document.querySelector('.nav-links');
+
+            menuToggle.addEventListener('click', function() {
+                navLinksContainer.classList.toggle('active');
+            });
+
+            document.addEventListener('click', function(e) {
+                if (window.innerWidth <= 768 &&
+                    !e.target.closest('.nav-links') &&
+                    !e.target.closest('.menu-toggle')) {
+                    navLinksContainer.classList.remove('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

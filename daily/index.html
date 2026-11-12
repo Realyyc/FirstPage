@@ -4,395 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>yyc's blog ^ ^</title>
-    <link rel="icon" href="../images/test.png">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        body {
-            background-color: #f8f9fa;
-            color: #333;
-            line-height: 1.6;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            
-            background-image: url("../images/罗夏.png"); /* Path to your image */
-            background-repeat: no-repeat; /* Prevents tiling */
-            background-size: cover; /* Ensures the image covers the entire screen */
-            background-attachment: fixed; /* Keeps the image fixed during scrolling */
-            background-position: center; /* Centers the image */
-        }
-
-        html, body {
-            height: 100%;
-        }
-        
-        /* 顶部导航栏样式 */
-        header {
-            background-color: #00529fd0;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-        
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem 5%;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        
-        .logo {
-            font-size: 1.5rem;
-            font-weight: 700;
-            text-shadow: 3px 3px 1px black;
-            color: #fff;
-        }
-        
-        .nav-links {
-            display: flex;
-            list-style: none;
-        }
-        
-        .nav-links li {
-            margin-left: 2rem;
-        }
-        
-        .nav-links a {
-            text-decoration: none;
-            color: #fff;
-            font-weight: 500;
-            transition: color 0.3s;
-            padding: 0.5rem 0;
-            position: relative;
-        }
-        
-        .nav-links a:hover {
-            color: #3498db;
-        }
-        
-        .nav-links a.active {
-            color: #3498db;
-        }
-        
-        .nav-links a.active::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background-color: #3498db;
-        }
-        
-        .menu-toggle {
-            display: none;
-            cursor: pointer;
-            font-size: 1.5rem;
-            color: #fff;
-        }
-        
-        /* 主要内容区域样式 */
-        .container {
-            /* max-width: 1200px; */
-            width: 90%;
-            margin: 2rem auto;
-            padding: 0 5%;
-            flex: 1 0 auto;
-        }
-        
-        .content-section {
-            display: none;
-            animation: fadeIn 0.5s ease;
-        }
-        
-        .content-section.active {
-            display: block;
-        }
-        
-        .section-title {
-            font-size: 2rem;
-            margin-bottom: 1.5rem;
-            color: #357199;
-            border-left: 4px solid #3498db;
-            padding-left: 1rem;
-        }
-        
-        .post-card {
-            background-color: #f4f4f4e2;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-        
-        .post-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-        }
-        
-        .post-title {
-            font-size: 1.3rem;
-            margin-bottom: 0.5rem;
-            color: #2c3e50;
-        }
-        
-        .post-meta {
-            color: #7f8c8d;
-            font-size: 0.9rem;
-            margin-bottom: 1rem;
-        }
-        
-        .post-excerpt {
-            color: #555;
-            margin-bottom: 1rem;
-        }
-        
-        .read-more {
-            display: inline-block;
-            color: #3498db;
-            text-decoration: none;
-            font-weight: 500;
-            transition: color 0.3s;
-        }
-        
-        .read-more:hover {
-            color: #2980b9;
-        }
-        
-        /* 关于页面样式 */
-        .about-content {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 2rem;
-        }
-        
-        .about-text {
-            flex: 1;
-            min-width: 300px;
-        }
-        
-        .about-image {
-            flex: 0 0 300px;
-            text-align: center;
-        }
-        
-        /* .about-image img {
-            max-width: 100%;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        } */
-
-        footer {
-            flex-shrink: 0;
-            background-color: #032b57;
-            color: #e6f2ff;
-            padding: 1.5rem 5%;
-            margin-top: 2rem;
-        }
-        .footer-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
-        .footer-left {
-            display: flex;
-            flex-direction: column;
-            gap: 0.3rem;
-        }
-        .footer-logo {
-            font-weight: 700;
-            font-size: 1.1rem;
-            color: #fff;
-            text-shadow: 1px 1px 0 rgba(0,0,0,0.3);
-        }
-        .footer-copy {
-            font-size: 0.9rem;
-            color: #cfe9ff;
-        }
-        .footer-links {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-        .footer-links a {
-            color: #9fd0ff;
-            text-decoration: none;
-            font-weight: 500;
-        }
-        .footer-links a:hover {
-            color: #fff;
-            text-decoration: underline;
-        }
-        
-        /* 联系页面样式 */
-        .contact-form {
-            max-width: 600px;
-        }
-        
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-        }
-        
-        .form-group input,
-        .form-group textarea {
-            width: 100%;
-            padding: 0.8rem;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 1rem;
-        }
-        
-        .form-group textarea {
-            min-height: 150px;
-            resize: vertical;
-        }
-        
-        .submit-btn {
-            background-color: #3498db;
-            color: white;
-            border: none;
-            padding: 0.8rem 1.5rem;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: background-color 0.3s;
-        }
-        
-        .submit-btn:hover {
-            background-color: #2980b9;
-        }
-        
-        /* 动画效果 */
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        
-        /* 响应式设计 */
-        @media (max-width: 768px) {
-            .nav-links {
-                display: none;
-                flex-direction: column;
-                position: absolute;
-                top: 100%;
-                left: 0;
-                width: 100%;
-                background-color: #00529fd0;
-                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-                padding: 1rem 0;
-            }
-            
-            .nav-links.active {
-                display: flex;
-            }
-            
-            .nav-links li {
-                margin: 0;
-                text-align: center;
-                padding: 0.8rem 0;
-            }
-            
-            .menu-toggle {
-                display: block;
-            }
-            
-            .about-content {
-                flex-direction: column;
-            }
-            
-            .about-image {
-                order: -1;
-            }
-
-            footer {
-                padding: 1rem 4%;
-            }
-            .footer-container {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            .footer-links {
-                width: 100%;
-                justify-content: flex-start;
-                flex-wrap: wrap;
-                gap: 0.6rem;
-                margin-top: 0.5rem;
-            }
-        }
-        /* 头像与动画效果 */
-        .image-container {
-            position: relative;
-            width: 250px;
-            height: 250px;
-            background-color: #e0e0e0;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto;
-        }
-        .bottom-image {
-            object-fit: cover;
-            transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            position: relative;
-            top: 0;
-            left: 0;
-            zoom: 15%;
-        }
-        .top-image {
-            position: absolute;
-            transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            top: 58px;
-            left: 125px;
-            width: 100px;
-            height: 100px;
-        }
-
-        .top-image.moved {
-            left: 125px;
-            top: 70px;
-            transform: rotate(-15deg);
-        }
-
-        h1 {
-            margin: 0;
-            padding: 20px 0;
-            color: #ff9500;
-            text-shadow: 3px 3px 1px black;
-            font-size: 60px;
-            text-align: center;
-        }
-
-        p {
-            color: #fff;
-        }
-    </style>
+    <link rel="icon" href="../images/opt/icon-64.png">
+    <link rel="stylesheet" href="../assets/style.css">
     <!-- 用户离开页面时改变页面标题 -->
-    <script>document.addEventListener('visibilitychange', function(){if(document.visibilityState=='hidden'){normal_title=document.title;document.title='yyc\'s blog qwq...';}else{document.title=normal_title;}});</script>
+    <script>var normal_title = document.title; document.addEventListener('visibilitychange', function(){if(document.visibilityState=='hidden'){normal_title=document.title;document.title='yyc\'s blog qwq...';}else{document.title=normal_title;}});</script>
     <!-- 移动墨镜 -->
     <script>
       document.addEventListener('DOMContentLoaded', function() {
         const image = document.getElementById("topImage");
+        if (!image) return; // 本页无墨镜图片，直接跳过
         let isMoved = false;
 
         image.addEventListener('click', function() {
@@ -408,16 +28,12 @@
         })
       })
     </script>
-    <!-- 字体设置 -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@200..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
 </head>
-<body>
+<body class="page-dark">
     <!-- 顶部导航栏 -->
     <header>
         <nav class="navbar">
-            <div class="logo">yyc's blog(施工中)</div>
+            <div class="logo">yyc's blog</div>
             <ul class="nav-links">
                 <li><a href="../index.html" class="nav-link" data-target="home">首页</a></li>
                 <li><a href="../tech/" class="nav-link" data-target="tech">技术分享</a></li>
@@ -428,26 +44,30 @@
         </nav>
     </header>
 
+    <div class="headimage img">
+        <img src="../images/opt/luo-xia.jpg" alt="日常分享头图" width="1600" height="667" decoding="async">
+    </div>
+
     <!-- 主要内容区域 -->
     <div class="container">
 
         <section id="tech" class="content-section active">
             <h2 class="section-title">日常分享</h2>
 
-            <p> 喜欢的SF: 盲视(彼得 沃茨), 彩虹尽头(文奇), 大刘的所有长篇, 闪光(格雷格 伊根), 献给阿尔吉侬的花束, 神们自己.</p>
-            <img src="../images/盲视.jpg" style="zoom: 12%;">
-            <img src="../images/彩虹尽头.jpg" style="zoom: 30%;">
-            <img src="../images/三体.jpg" style="zoom: 35%;">
-            <p> 喜欢的番剧: 游戏人生, 超能力女儿, 小林家的龙女仆1.</p>
-            <p> 以上, 欢迎来找咱讨论喵^ ^ </p>
+            <!-- <p> 喜欢的SF: 盲视(彼得 沃茨), 彩虹尽头(文奇), 大刘的所有长篇, 闪光(格雷格 伊根), 献给阿尔吉侬的花束, 神们自己.</p> -->
+            <!-- <img src="../images/opt/mangshi-400.jpg" alt="《盲视》封面" width="130" height="189" style="width: 130px; height: auto;" loading="lazy" decoding="async">
+            <img src="../images/彩虹尽头.jpg" alt="《彩虹尽头》封面" width="400" height="591" style="zoom: 30%;" loading="lazy" decoding="async">
+            <img src="../images/三体.jpg" alt="《三体》封面" width="350" height="500" style="zoom: 35%;" loading="lazy" decoding="async"> -->
+            <!-- <p> 喜欢的番剧: 游戏人生, 超能力女儿, 小林家的龙女仆1.</p>
+            <p> 以上, 欢迎来找咱讨论喵^ ^ </p> -->
 
-            <hr style="border: 1px solid #ffffff; width: 50%; margin: 10px;">
+            <!-- <hr style="border: 1px solid #ffffff; width: 50%; margin: 10px;"> -->
             
             <div class="post-card">
-                <h3 class="post-title">盲视的细节(test)</h3>
+                <h3 class="post-title">盲视的细节</h3>
                 <div class="post-meta">发布于 2025年XX月XX日 | 分类: 日常分享</div>
                 <p class="post-excerpt">发掘盲视中最精彩的东西</p>
-                <a href="../tech/git/" class="read-more">阅读更多</a>
+                <a href="./index.html" class="read-more">阅读更多</a>
             </div>
             
         </section>
@@ -459,7 +79,7 @@
         <div class="footer-container">
             <div class="footer-left">
                 <div class="footer-logo">yyc's blog</div>
-                <div class="footer-copy">© <span id="year"></span> yyc. 保留所有权利。</div>
+                <div class="footer-copy">© <span id="year"></span></div>
             </div>
             <div class="footer-links">
                 <a href="mailto:yyc114@qq.com">联系我</a>
@@ -497,5 +117,7 @@
             });
         });
     </script>
+
+    <script src="../assets/site.js"></script>
 </body>
 </html>

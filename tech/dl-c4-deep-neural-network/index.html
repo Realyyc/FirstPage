@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="scripts/build_tech.py">
+    <title>C4.Deep Neural Network · yyc's blog</title>
+    <meta name="description" content="​	将两个{R}^1  {R}^1且3个隐藏层的浅层网络直接首尾相连，注意中间的y没有ReLU">
+    <link rel="icon" href="../../images/opt/icon-64.png">
+    <link rel="stylesheet" href="../../assets/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+            onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],macros:{'\\part':'\\partial','\\tr':'\\operatorname{tr}','\\grad':'\\nabla'}});"></script>
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <header>
+        <nav class="navbar">
+            <div class="logo">yyc's blog</div>
+            <ul class="nav-links">
+                <li><a href="../../index.html" class="nav-link">首页</a></li>
+                <li><a href="../" class="nav-link active">技术分享</a></li>
+                <li><a href="../../daily/" class="nav-link">日常分享</a></li>
+                <li><a href="../../about/" class="nav-link">关于我</a></li>
+            </ul>
+            <div class="menu-toggle">☰</div>
+        </nav>
+    </header>
+
+    <div class="headimage">
+        <img src="../../images/opt/tiger-banner.jpg" alt="C4.Deep Neural Network" decoding="async" fetchpriority="high">
+    </div>
+
+    <!-- 主要内容区域 -->
+    <div class="container">
+        <article class="article">
+            <h1 class="article-title">C4.Deep Neural Network</h1>
+            <div class="post-meta">发布于 2025年5月31日 | 分类: 深度学习</div>
+            <nav class="prev-next"><a class="pn-link pn-prev" href="../dl-c3-shallow-neural-network/"><span class="pn-dir">← 上一篇</span><span class="pn-title">C3.Shallow Neural Network</span></a><span class="pn-pos">2 / 18</span><a class="pn-link pn-next" href="../dl-c5-loss-function/"><span class="pn-dir">下一篇 →</span><span class="pn-title">C5.Loss Function</span></a></nav>
+            <h2>1.深层网络的映射过程</h2>
+            <h3>1.1.组装两个浅层网络</h3>
+            <h4>1.1.1.两个$\mathbb{R}^1 \rightarrow \mathbb{R}^1$</h4>
+            <p>​    将两个$\mathbb{R}^1 \rightarrow \mathbb{R}^1$且3个隐藏层的浅层网络直接首尾相连，注意中间的y没有ReLU</p>
+            <img src="image-20250529092130344.png" alt="image-20250529092130344" style="zoom:80%;" loading="lazy" decoding="async">
+            <p>​    上图中，Network1只有3个区域是因为还有一个关节在画面外</p>
+            <p>​    直接从$\mathbb{R}^1 \rightarrow \mathbb{R}^1$的角度理解，直线x折纸变换到直线y，再折纸变换到直线y'，第二次在恰当的位置折纸可以将折痕数加倍</p>
+            <h4>1.1.2.一个$\mathbb{R}^2 \rightarrow \mathbb{R}^1$与一个$\mathbb{R}^1 \rightarrow \mathbb{R}^1$</h4>
+            <img src="image-20250529105202655.png" alt="image-20250529105202655" style="zoom:80%;" loading="lazy" decoding="async">
+            <p>​    将一个二维平面$(x_1,x_2)$折纸变换到直线$y$，再折纸变换到另一直线$y'$</p>
+            <p>​    可以观察，新折痕本身是一条折线，这比直线折痕能创造出更多区域</p>
+            <h3>1.2.从浅层网络到深层网络</h3>
+            <p>​    <strong>prop</strong> 两个$\mathbb{R}^1 \rightarrow \mathbb{R}^1$浅层网络拼接的过程可以写成一个拥有两个隐藏层的深层网络：</p>
+            <p>​    两个拼接的浅层网络倒数第二层可以写成这样：</p>
+            <div class="math-display">$$y=\phi_0+\phi_1h_1+\phi_2h_2+\phi_3h_3\\
+            h_1'=a[\theta_{10}'+\theta_{11}'y]=a[\theta_{10}'+\theta_{11}'\phi_0+\theta_{11}'\phi_1h_1+\theta_{11}'\phi_2h_2+\theta_{11}'\phi_3h_3]\\
+            h_2'=a[\theta_{20}'+\theta_{21}'y]=a[\theta_{20}'+\theta_{21}'\phi_0+\theta_{21}'\phi_1h_1+\theta_{21}'\phi_2h_2+\theta_{21}'\phi_3h_3]\\
+            h_3'=a[\theta_{30}'+\theta_{31}'y]=a[\theta_{30}'+\theta_{31}'\phi_0+\theta_{31}'\phi_1h_1+\theta_{31}'\phi_2h_2+\theta_{31}'\phi_3h_3]\\$$</div>
+            <p>​    拥有两个隐藏层的深层网络的倒数第二层可以写成这样：</p>
+            <img src="image-20250529102713865.png" alt="image-20250529102713865" style="zoom:50%;" loading="lazy" decoding="async">
+            <div class="math-display">$$h_1'=a[\psi_{10}+\psi_{11}h_1+\psi_{12}h_2+\psi_{13}h_3]\\
+            h_2'=a[\psi_{20}+\psi_{21}h_1+\psi_{22}h_2+\psi_{23}h_3]\\
+            h_3'=a[\psi_{30}+\psi_{31}h_1+\psi_{32}h_2+\psi_{33}h_3]\\$$</div>
+            <p>​    可以看出，“两个拼接的浅层网络”是“两个隐藏层的深层网络”的一种特殊情况，这可以从倒数第二层的权值矩阵看出，前者的权值矩阵秩为1，后者是满秩的</p>
+            <div class="math-display">$$\begin{bmatrix}
+            \theta_{11}'\phi_1&amp;\theta_{11}'\phi_2&amp;\theta_{11}'\phi_3\\
+            \theta_{21}'\phi_1&amp;\theta_{21}'\phi_2&amp;\theta_{21}'\phi_3\\
+            \theta_{31}'\phi_1&amp;\theta_{31}'\phi_2&amp;\theta_{31}'\phi_3\\
+            \end{bmatrix}
+
+            \begin{bmatrix}
+            h_1\\
+            h_2\\
+            h_3\\
+            \end{bmatrix}
+
+            =
+            \begin{bmatrix}
+            \theta_{11}'\\
+            \theta_{21}'\\
+            \theta_{31}'\\
+            \end{bmatrix}
+            \begin{bmatrix}
+            \phi_1&amp;\phi_2&amp;\phi_3
+            \end{bmatrix}
+            \begin{bmatrix}
+            h_1\\
+            h_2\\
+            h_3\\
+            \end{bmatrix}$$</div>
+            <div class="math-display">$$\begin{bmatrix}
+            \psi_{11}&amp;\psi_{12}&amp;\psi_{13}\\
+            \psi_{21}&amp;\psi_{22}&amp;\psi_{23}\\
+            \psi_{31}&amp;\psi_{32}&amp;\psi_{33}\\
+            \end{bmatrix}
+
+            \begin{bmatrix}
+            h_1\\
+            h_2\\
+            h_3\\
+            \end{bmatrix}$$</div>
+            <h3>1.3.深层网络</h3>
+            <p>​    一个$\mathbb{R}^1 \rightarrow \mathbb{R}^1$两层隐藏层的深层网络可以写成如下形式：</p>
+            <p>​    第一层：</p>
+            <div class="math-display">$$h_1=a[\theta_{10}+\theta_{11}x]\\
+            h_2=a[\theta_{20}+\theta_{21}x]\\
+            h_3=a[\theta_{30}+\theta_{31}x]\\$$</div>
+            <p>​    第二层：</p>
+            <div class="math-display">$$h_1'=a[\psi_{10}+\psi_{11}h_1+\psi_{12}h_2+\psi_{13}h_3]\\
+            h_2'=a[\psi_{20}+\psi_{21}h_1+\psi_{22}h_2+\psi_{23}h_3]\\
+            h_3'=a[\psi_{30}+\psi_{31}h_1+\psi_{32}h_2+\psi_{33}h_3]\\$$</div>
+            <p>​    输出层：</p>
+            <div class="math-display">$$y'=\phi_0'+\phi_1'h_1'+\phi_2'h_2'+\phi_3'h_3'$$</div>
+            <p>​    可以直接理解为：$h_1,h_2,h_3$是最开始的三种简单的折痕，这三种折痕再经过线性组合后再折了一次，得到$h_1',h_2',h_3'$三种复杂的折痕，最后做一个线性组合得到最终的折痕$y'$</p>
+            <h3>1.4.总结</h3>
+            <p>​    以折痕映射的图像进行思考，每一张图像都是$\mathbb{R}^D\rightarrow\mathbb{R}$，其中$D$是输入数据的维度，每叠加一层映射都会使图像又变回$\mathbb{R}^D\rightarrow\mathbb{R}$。单独观察每一层$\mathbb{R}^{D_i}\rightarrow\mathbb{R}$的图像，你只能看到的简单的折纸变换(仿射+ReLU)，但通过观察$\mathbb{R}^{D}\rightarrow\mathbb{R}$的图像，每一个节点的意义立刻显现出来。</p>
+            <h2>2.深层网络的超参数与矩阵表示</h2>
+            <h3>2.1.超参数</h3>
+            <p>​    假设隐藏层数量数为$K$，每一层节点数为$D_1,D_2,...,D_k$，这些就是超参数</p>
+            <h3>2.2.矩阵表示</h3>
+            <p>​    任意深层网络可以通过如下表示：</p>
+            <div class="math-display">$$\boldsymbol{h}_1=a[\boldsymbol{\beta}_0+\boldsymbol{\Omega}_0\boldsymbol{x}]\\
+            \boldsymbol{h}_2=a[\boldsymbol{\beta}_1+\boldsymbol{\Omega}_1\boldsymbol{x}]\\
+            \boldsymbol{h}_3=a[\boldsymbol{\beta}_2+\boldsymbol{\Omega}_2\boldsymbol{x}]\\
+            ...\\
+            \boldsymbol{h}_K=a[\boldsymbol{\beta}_{K-1}+\boldsymbol{\Omega}_{K-1}\boldsymbol{x}]\\
+            \boldsymbol{y}=\boldsymbol{\beta}_K+\boldsymbol{\Omega}_K\boldsymbol{x}\\$$</div>
+            <p>​    上述粗体表示的是列向量和矩阵，除了$a[x]$是广播运算，其余均为矩阵运算</p>
+            <h2>3.深层网络VS浅层网络</h2>
+            <h3>3.1.分割区域的数量与参数的数量</h3>
+            <p>​    一个$\mathbb{R}\rightarrow\mathbb{R}$的浅层网络with $D&gt;2$个隐藏节点，可以通过$3D+1$个参数创造最多$D+1$个区域</p>
+            <p>​    一个$\mathbb{R}\rightarrow\mathbb{R}$的深层网络with $D&gt;2$个隐藏节点和$K$层，可以通过$3D+1+(K-1)D(D+1)$个参数创造最多$(D+1)^K$个区域</p>
+            <p>| 网络名称 | 参数数量           | 分割区域上界 | | -------- | ------------------ | ------------ | | 浅层网络 | $3D+1$             | $D+1$        | | 深层网络 | $3D+1+(K-1)D(D+1)$ | $(D+1)^K$    |</p>
+            <p>​    要准确算出分割区域数量的最大值是一件很难的事情，if the number of hidden units $D$ in each of the $K$ layers is the same, and $D$ is an integer multiple of the input dimensionality $D_{I}$, then the maximum number of linear regions $N_r$ can be computed exactly and is:</p>
+            <div class="math-display">$$N_r=(\frac{D}{D_I}+1)^{D_I(K-1)}\sum_{j=0}^{D_I}C_{D}^{j}$$</div>
+            <p>​    <strong>Rmk</strong> 其实不应该看参数的数量，而应该看计算的数量，深层的计算量大概也是成倍的多于浅层的。</p>
+            <h3>3.2.Depth efficiency</h3>
+            <p>​    在相同精度下，有一些函数使用浅层神经网络拟合的效率指数级的低于深层神经网络，这被称为<strong>Depth efficiency</strong>。</p>
+            <h3>3.3.大数据的输入</h3>
+            <p>​    图像数据的维度可以轻易达到很大$\mathbb{R}^{n\times n}$，处理这样的数据需要深层的CNN</p>
+            <h2>§Problems</h2>
+            <h3>Problem4.1</h3>
+            <p>​    列出一些输入与输出：$(0.0,0.6),(-1.0,-0.8),(1.0,-0.8)$</p>
+            <h3>Problem4.2</h3>
+            <p>​    四个超参数 $K=3,D_1=4,D_2=2,D_3=3$</p>
+            <h3>Problem4.3</h3>
+            <p>​    <em>trivial</em></p>
+            <h3>Problem4.8折叠映射实例</h3>
+            <p>​    必然会分割成四个区域：$(0,\frac16),(\frac16,\frac26),(\frac26,\frac46),(\frac46,1)$</p>
+            <p>​    令$\phi_0=\frac46,\phi_1=-2,\phi_2=1.5,\phi_3=-1$，可以得到这四个区域的斜率分别为$1,-1,0.5,-0.5$，输出的范围为$[0,\frac16]$。再将所有系数乘上6，可以让输出范围扩大到$[0,1]$，即$\phi_0=4,\phi_1=-12,\phi_2=8,\phi_3=-6$，当然斜率也发生变化了</p>
+            <img src="62e54e2386c2fd4531e45c42e6385d2.jpg" alt="62e54e2386c2fd4531e45c42e6385d2" style="zoom:50%;" loading="lazy" decoding="async">
+            <p>​    如果将这个网络复制后首尾相接，会产生16个区域：当$x$从$0$移动到$\frac16$，$y$已经从$0$走到$1$了，再代回$x$得到的$y'$已经有四折了，剩下同理：</p>
+            <img src="36ce4e178a7812a2b62f71169217fec.jpg" alt="36ce4e178a7812a2b62f71169217fec" style="zoom:50%;" loading="lazy" decoding="async">
+            <p>​    if we compose itself with $K$ times, obviously there will have $4^{K+1}$个线性区域</p>
+            <h3>Problem4.9</h3>
+            <p>​    当然可以，只要能自己设计函数，我可以轻易做到</p>
+            <h3>Problem4.11</h3>
+            <p>​    浅层网络$\mathbb{R}\rightarrow\mathbb{R}$拥有$D=95$个隐藏节点拥有参数数量：</p>
+            <div class="math-display">$$2D+D+1=3D+1=286$$</div>
+            <p>​    深层网络$\mathbb{R}\rightarrow\mathbb{R}$ with $D=5,K=10$，拥有参数数量：</p>
+            <div class="math-display">$$2D+(K-1)D(D+1)+D+1=16+270=286$$</div>
+            <p>​    浅层网络可以制造$287$个区域，深层网络可以制造$6^9\times 6=6^{10}$个线性区域</p>
+            <p>​    但看乘法运算：浅层网络进行了$286\times 2$次，深层网络进行了$5+5+9\times5\times5=235$次，看上去深层网络似乎计算量更少</p>
+            <div class="math-display">$$\color{red}Wrong Answer: 由于浅层网络更方便进行并行计算，只进行了一次矩阵乘法，所以一般来说浅层网络计算的更快$$</div>
+            <nav class="prev-next"><a class="pn-link pn-prev" href="../dl-c3-shallow-neural-network/"><span class="pn-dir">← 上一篇</span><span class="pn-title">C3.Shallow Neural Network</span></a><span class="pn-pos">2 / 18</span><a class="pn-link pn-next" href="../dl-c5-loss-function/"><span class="pn-dir">下一篇 →</span><span class="pn-title">C5.Loss Function</span></a></nav>
+            <p class="article-back"><a class="read-more" href="../#a-dl-c4-deep-neural-network">← 返回技术分享</a></p>
+        </article>
+    </div>
+
+    <!-- 页脚 -->
+    <footer>
+        <div class="footer-container">
+            <div class="footer-left">
+                <div class="footer-logo">yyc's blog</div>
+                <div class="footer-copy">© <span id="year"></span></div>
+            </div>
+            <div class="footer-links">
+                <a href="mailto:yyc114@qq.com">联系我</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 设置页脚年份
+        (function(){
+            const y = new Date().getFullYear();
+            const el = document.getElementById('year');
+            if (el) el.textContent = y;
+        })();
+    </script>
+
+    <script src="../../assets/site.js"></script>
+
+    <script>
+        // 导航栏切换功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuToggle = document.querySelector('.menu-toggle');
+            const navLinksContainer = document.querySelector('.nav-links');
+
+            menuToggle.addEventListener('click', function() {
+                navLinksContainer.classList.toggle('active');
+            });
+
+            document.addEventListener('click', function(e) {
+                if (window.innerWidth <= 768 &&
+                    !e.target.closest('.nav-links') &&
+                    !e.target.closest('.menu-toggle')) {
+                    navLinksContainer.classList.remove('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="scripts/build_tech.py">
+    <title>C10.Convolution Neural Network · yyc's blog</title>
+    <meta name="description" content="​	图像是高纬度的、有结构的, 直接用全连接层(Affine)去处理图像很糟糕: 高纬度输入让参数爆炸式增长, 相邻像素间的某种连续性不能在…">
+    <link rel="icon" href="../../images/opt/icon-64.png">
+    <link rel="stylesheet" href="../../assets/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+            onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],macros:{'\\part':'\\partial','\\tr':'\\operatorname{tr}','\\grad':'\\nabla'}});"></script>
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <header>
+        <nav class="navbar">
+            <div class="logo">yyc's blog</div>
+            <ul class="nav-links">
+                <li><a href="../../index.html" class="nav-link">首页</a></li>
+                <li><a href="../" class="nav-link active">技术分享</a></li>
+                <li><a href="../../daily/" class="nav-link">日常分享</a></li>
+                <li><a href="../../about/" class="nav-link">关于我</a></li>
+            </ul>
+            <div class="menu-toggle">☰</div>
+        </nav>
+    </header>
+
+    <div class="headimage">
+        <img src="../../images/opt/tiger-banner.jpg" alt="C10.Convolution Neural Network" decoding="async" fetchpriority="high">
+    </div>
+
+    <!-- 主要内容区域 -->
+    <div class="container">
+        <article class="article">
+            <h1 class="article-title">C10.Convolution Neural Network</h1>
+            <div class="post-meta">发布于 2025年6月6日 | 分类: 深度学习</div>
+            <nav class="prev-next"><a class="pn-link pn-prev" href="../dl-c9-regularization/"><span class="pn-dir">← 上一篇</span><span class="pn-title">C9.Regularization</span></a><span class="pn-pos">8 / 18</span><a class="pn-link pn-next" href="../dl-c11-residual-network-batch-norm/"><span class="pn-dir">下一篇 →</span><span class="pn-title">C11.Residual Network &amp; batch norm</span></a></nav>
+            <h2>1.Invariance and Equivariance</h2>
+            <p>​    图像是高纬度的、有结构的, 直接用全连接层(Affine)去处理图像很糟糕: 高纬度输入让参数爆炸式增长, 相邻像素间的某种连续性不能在Affine层得到利用(即使图像的像素随机重排也不影响Affine)</p>
+            <p>​    我们想要得到一个能利用图像数据内在结构的映射, 该映射应该具有如下特性:</p>
+            <p>​    <strong>Invariance</strong> 设我们想要的映射为$f[\bold x]$, ?对于rigid变换$t[\bold x]=\bold Q \bold x+ \bold b$, 包括旋转、翻转、平移?, $\textcolor{red}{\bold{Error}}$ t似乎是permutation, invariance指以下性质:($f: \R^n\rightarrow \R$)</p>
+            <div class="math-display">$$f[t[\bold x]] = f[\bold x]$$</div>
+            <p>​    <strong>Equivariance</strong> 指以下性质:??见<strong>Problem10.1</strong> ($f:\R^n\rightarrow\R^n$)</p>
+            <div class="math-display">$$f[t[\bold x]] = t[f[\bold x]]$$</div>
+            <h2>2.CNN for 1D Input</h2>
+            <h3>2.1.基础概念</h3>
+            <p><strong>卷积</strong> 对于1D, 卷积就是向量 $\bold x$ 到向量 $\bold z$ 的变换, s.t.输出 $z_i$ 是输入 $x_i$ 附近的加权求和.</p>
+            <div class="math-display">$$z_i=\omega_1x_{i-1}+\omega_2x_i+\omega_3x_{i+1}$$</div>
+            <p>​    <strong>def(kernel)</strong> kernel就是上述求和的权值$\{\omega_1,\omega_2,\omega_3\}$</p>
+            <img src="image-20250607155045441.png" alt="image-20250607155045441" style="zoom:50%;" loading="lazy" decoding="async">
+            <p>​    卷积还包括一些操作:</p>
+            <p>​    1.<strong>padding</strong> 为了防止输出维度变小, 在输入的边缘添加0, 或者当一个环(omitted)</p>
+            <p>​    2.<strong>kernel size、stride、Dilation </strong> stride 为2可以让输出大致减半(omtted)</p>
+            <p>​    3.<strong>input channel、output channel</strong> 增加输出channel可以保留信息, 而不至于让丰富的多channel输入信息过早的被压缩到只剩下一点</p>
+            <p>​    <strong>卷积层</strong> 别忘了, 网络中的convolutional layer还有激活函数和bias:</p>
+            <div class="math-display">$$h_i=a[\beta+\omega_1x_1+\omega_2x_2+\omega_3x_3]$$</div>
+            <p>​    <strong>def(receptive field)</strong> 就是感受野(omitted)</p>
+            <img src="image-20250607164044952.png" alt="image-20250607164044952" style="zoom:50%;" loading="lazy" decoding="async">
+            <p>​    每层的卷积核大小都为3, 步进为1, 第4层的感受野才能覆盖整个11维的输入</p>
+            <h3>2.2.全连接 vs 1D conv</h3>
+            <h4>2.2.1.参数的个数</h4>
+            <p>​    <strong>卷积层与全连接层的关系</strong> 上面这行卷积层式子只用了$3$个权值参数和$1$个偏置, 而同等输出维度的全连接层会使用$n \times n$个权值和$n$个偏置.</p>
+            <p>​    权值放到同一个矩阵里可以表示成如下的模样:</p>
+            <img src="image-20250607162832103.png" alt="image-20250607162832103" style="zoom:50%;" loading="lazy" decoding="async">
+            <p>​    CNN的权值只用了3个, 虽然矩阵的非零元素很多, c的步进为1, e的步进为2.</p>
+            <h4>2.2.2.泛化性能</h4>
+            <p>​    使用mnist1d数据集识别手写数字(实际上, 1dCNN一般用在语音数据、金融数据上), 结果如下:</p>
+            <img src="image-20250607164447828.png" alt="image-20250607164447828" style="zoom:50%;" loading="lazy" decoding="async">
+            <p>​    虽然全连接层有足够的灵活度, 可以轻易达到和1dCNN相同的训练误差, 但泛化性能已经悄然拉开距离.</p>
+            <h2>3.CNN for 2D input</h2>
+            <p>​    <strong>e.g.channel</strong> RGB照片就可以视为3个channel的input</p>
+            <p>(omitted)</p>
+            <h2>4.Downsampling & upsampling & channel change</h2>
+            <p>​    如果stride=1, 隐藏层需要很多才能让最后一层的感受野覆盖整个输入, downsampling就是快速降低隐藏层维度的方法.</p>
+            <p>​    upsampling指提升维度的方法.</p>
+            <h3>4.1.downsampling</h3>
+            <p>​    <strong>方法1: stride</strong> 让stride=2可以在每次卷积后维度大约减半.</p>
+            <p>​    <strong>方法2: pooling</strong> 使用2×2的池化层可以让维度减半, 池化层对每个输入channel独立操作, 输出的channel和输入的channel一样; 特别的, max pooling还有一定的稳定性.</p>
+            <h3>4.2.upsampling</h3>
+            <p>​    想象downsampling的反转~</p>
+            <p>​    <strong>方法1: 双倍输入</strong> 将每个值重复三次, 大小翻倍</p>
+            <p>​    <strong>方法2: max unpooling</strong> 反转的max pooling, 需要在max pooling的时候记住max值的位置, 在unpooling的时候放回到原来位置上</p>
+            <p>​    <strong>方法3: bilinear interpolation</strong> 在间隙插入值, 插入值取两端的均值</p>
+            <img src="image-20250609160149467.png" alt="image-20250609160149467" style="zoom:50%;" loading="lazy" decoding="async">
+            <p>​    <strong>方法4: transposed convolution</strong> 将stride=2的convolution输入输出对掉, 相应的权值矩阵也正好是原conv矩阵的转置</p>
+            <img src="image-20250609160528980.png" alt="image-20250609160528980" style="zoom:50%;" loading="lazy" decoding="async">
+            <p>​    so cool</p>
+            <h3>4.3.channel change</h3>
+            <p>​    通过1×1滤波器做卷积层可以快速改变数据的channel, 参数的个数为$1 \times 1 \times C_i \times C_o$ , 相当于单个像素的全部channel做相同的线性变换</p>
+            <h2>5.CNN实例</h2>
+            <h3>5.1.image classification(omitted)</h3>
+            <p>​    image net 比赛</p>
+            <h3>5.2.object detection(不懂)</h3>
+            <p>​    <strong>step 1</strong> 训练一个传统的分类识别CNN, 将图像均分为7×7区块分别识别分类概率</p>
+            <p>​    <strong>step 2</strong> encode 7×7 grid with $(x, y, height, width, confidence)$ (不懂在干什么)</p>
+            <p>​    <strong>step 3</strong> remove some box</p>
+            <h3>5.3.semantic segmentation</h3>
+            <p>​    <strong>step 1</strong> 训练一个沙漏状的CNN, 得到输出图像每个像素点上的分类概率</p>
+            <img src="image-20250610101906349.png" alt="image-20250610101906349" style="zoom:50%;" loading="lazy" decoding="async">
+            <p>​    <strong>step 2</strong> 使用贪心算法合并区块</p>
+            <h2>§Problems</h2>
+            <h3>Problem10.1</h3>
+            <p>​    Show that the operation in equation 10.3 is equivariant with respect to translation.</p>
+            <div class="math-display">$$z_i=\omega_1x_{i-1}+\omega_2x_i+\omega_3x_{i+1}$$</div>
+            <p>​    <strong>Proof</strong> $\bold z = f(\bold x)$可以写成如下矩阵形式:</p>
+            <div class="math-display">$$\begin{bmatrix}
+            z_1 \\ z_2 \\ z_3 \\ ...
+            \end{bmatrix}
+            _{n \times 1}
+            =
+            \begin{bmatrix}
+            \omega_2 &amp; \omega_3 &amp; 0 &amp; 0 &amp; ...\\
+            \omega_1 &amp; \omega_2 &amp; \omega_3 &amp; 0 &amp; ...\\
+            0 &amp; \omega_1 &amp; \omega_2 &amp; \omega_3 &amp; ...\\
+            ...&amp;...&amp;...&amp;...&amp;...
+            \end{bmatrix}
+            _{n \times n}
+
+            \begin{bmatrix}
+            x_1 \\ x_2 \\ x_3 \\ ...
+            \end{bmatrix}
+            _{n \times 1}$$</div>
+            <p>​    即可以写为$\bold z = \bold W \bold x$</p>
+            <p>​    又, $t(\bold x) = \bold Q \bold x + \bold b$</p>
+            <p>​    则有:</p>
+            <div class="math-display">$$t(f(\bold x)) = \bold Q \bold W x +\bold b\\
+            f(t(\bold x)) = \bold W \bold Qx+\bold W \bold b$$</div>
+            <p>​    $\color{red}\bold{Answer}$</p>
+            <div class="math-display">$$f_i[t[\bold x]]=\omega_1x_{i-1+\tau}+\omega_2x_{i+\tau}+\omega_3x_{i+1+\tau}=f_{i+\tau}[\bold x]=t[f[\bold x]]$$</div>
+            <p>​    你需要意识到$f(x)$是一个标量函数, 所以有很多个值$f_i(x)$</p>
+            <h3>Problem10.6</h3>
+            <p>​    Draw a $12×6$ weight matrix in the style of figure 10.4d relating inputs $x_1, . . . , x_6$ to outputs $h_1, . . . , h_{12}$ in the multi-channel convolution as depicted in figures 10.5a–b.</p>
+            <p>​    <strong>Solution</strong></p>
+            <div class="math-display">$$\begin{bmatrix}
+            \omega_2 &amp; \omega_3 &amp; 0 &amp; 0 &amp; ...\\
+            \omega_1 &amp; \omega_2 &amp; \omega_3 &amp; 0 &amp; ...\\
+            0 &amp; \omega_1 &amp; \omega_2 &amp; \omega_3 &amp; ...\\
+            ...&amp;...&amp;...&amp;...&amp;...
+            \end{bmatrix}$$</div>
+            <p>​    $\color{red}\bold{Answer}$ 见下问, 是multi-channel哦, 不要理解错题目意思了</p>
+            <h3>Problem10.7</h3>
+            <p>​    Draw a $6×12$ weight matrix in the style of figure 10.4d relating inputs $h_1, . . . , h_{12}$ to outputs $h ' _1, . . . , h' _6$ in the multi-channel convolution in figure 10.5c.</p>
+            <p>​    $\color{red}\bold{Answer}$</p>
+            <img src="image-20250610113212970.png" alt="image-20250610113212970" style="zoom:50%;" loading="lazy" decoding="async">
+            <h3>Problem10.16</h3>
+            <p>​    Consider the AlexNet network (figure 10.16). How many parameters are used in each convolutional and fully connected layer? What is the total number of parameters?</p>
+            <img src="image-20250610113334398.png" alt="image-20250610113334398" style="zoom:50%;" loading="lazy" decoding="async">
+            <p>​    <strong>Solution</strong></p>
+            <div class="math-display">$$(11\times 11\times 3 +1)\times 96+(5 \times 5 \times 96+1)\times256+(3\times3\times256+1)\times384+(3\times3\times384+1)\times384+(3\times3\times384+1)\times256+(4096\times4096+4096)+(4096\times4096+4096)+(4096\times1000+1000)$$</div>
+            <p>​    得到:</p>
+            <div class="math-display">$$34,944+614,656+885,120+1,327,488+884,992+16,781,312+16,781,312+4,100,096\\
+            =41,409,920$$</div>
+            <p>​    $\color{red}\bold{Answer}$ 第一个全连接层算错了哦, 应该是:</p>
+            <div class="math-display">$$(6\times6\times256+1)\times4096=37,752,832$$</div>
+            <p>​    注意到, $6\times6$的卷积核甚至不是奇数, 实际上数据$13\times13\times256$先经过max-pooling 变为$6\times6\times256$, 随后经过$6\times6\times256$的卷积核将数据变为$1\times1\times1$, 再加上4096个频道, emmm所以全连接指的是$1\rightarrow4096$的全连接吧.</p>
+            <p>​    所以答案应该是:</p>
+            <div class="math-display">$$34,944+614,656+885,120+1,327,488+884,992+\textcolor{red}{37,752,832}+16,781,312+4,100,096\\
+            =\textcolor{red}{62,381,440???\ or\  62,378,344}$$</div>
+            <h3>Problem10.19</h3>
+            <p>​    Consider two hidden layers of size $224×224$ with $C_1$ and $C_2$ channels, respectively, connected by a $3×3$ convolutional layer. Describe how to initialize the weights using He initialization.</p>
+            <p><strong>Solution</strong> 每个值是上一层$9\times C_1$个值的线性组合, 这与$C_2$没有关系, 所以直接采用</p>
+            <div class="math-display">$$\sigma=\sqrt{\frac{2}{9C_1}}$$</div>
+            <p>的正态分布</p>
+            <nav class="prev-next"><a class="pn-link pn-prev" href="../dl-c9-regularization/"><span class="pn-dir">← 上一篇</span><span class="pn-title">C9.Regularization</span></a><span class="pn-pos">8 / 18</span><a class="pn-link pn-next" href="../dl-c11-residual-network-batch-norm/"><span class="pn-dir">下一篇 →</span><span class="pn-title">C11.Residual Network &amp; batch norm</span></a></nav>
+            <p class="article-back"><a class="read-more" href="../#a-dl-c10-convolution-neural-network">← 返回技术分享</a></p>
+        </article>
+    </div>
+
+    <!-- 页脚 -->
+    <footer>
+        <div class="footer-container">
+            <div class="footer-left">
+                <div class="footer-logo">yyc's blog</div>
+                <div class="footer-copy">© <span id="year"></span></div>
+            </div>
+            <div class="footer-links">
+                <a href="mailto:yyc114@qq.com">联系我</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 设置页脚年份
+        (function(){
+            const y = new Date().getFullYear();
+            const el = document.getElementById('year');
+            if (el) el.textContent = y;
+        })();
+    </script>
+
+    <script src="../../assets/site.js"></script>
+
+    <script>
+        // 导航栏切换功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuToggle = document.querySelector('.menu-toggle');
+            const navLinksContainer = document.querySelector('.nav-links');
+
+            menuToggle.addEventListener('click', function() {
+                navLinksContainer.classList.toggle('active');
+            });
+
+            document.addEventListener('click', function(e) {
+                if (window.innerWidth <= 768 &&
+                    !e.target.closest('.nav-links') &&
+                    !e.target.closest('.menu-toggle')) {
+                    navLinksContainer.classList.remove('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

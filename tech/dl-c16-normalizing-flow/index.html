@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="scripts/build_tech.py">
+    <title>C16.Normalizing flow · yyc's blog</title>
+    <meta name="description" content="normalizing flow是probabilistic generative model">
+    <link rel="icon" href="../../images/opt/icon-64.png">
+    <link rel="stylesheet" href="../../assets/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+            onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],macros:{'\\part':'\\partial','\\tr':'\\operatorname{tr}','\\grad':'\\nabla'}});"></script>
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <header>
+        <nav class="navbar">
+            <div class="logo">yyc's blog</div>
+            <ul class="nav-links">
+                <li><a href="../../index.html" class="nav-link">首页</a></li>
+                <li><a href="../" class="nav-link active">技术分享</a></li>
+                <li><a href="../../daily/" class="nav-link">日常分享</a></li>
+                <li><a href="../../about/" class="nav-link">关于我</a></li>
+            </ul>
+            <div class="menu-toggle">☰</div>
+        </nav>
+    </header>
+
+    <div class="headimage">
+        <img src="../../images/opt/wolf-banner.jpg" alt="C16.Normalizing flow" decoding="async" fetchpriority="high">
+    </div>
+
+    <!-- 主要内容区域 -->
+    <div class="container">
+        <article class="article">
+            <h1 class="article-title">C16.Normalizing flow</h1>
+            <div class="post-meta">发布于 2025年7月16日 | 分类: 深度学习</div>
+            <nav class="prev-next"><a class="pn-link pn-prev" href="../dl-c15-gnerative-adversarial-networks/"><span class="pn-dir">← 上一篇</span><span class="pn-title">C15.Gnerative adversarial networks</span></a><span class="pn-pos">14 / 18</span><a class="pn-link pn-next" href="../dl-c17-variational-autoencoders/"><span class="pn-dir">下一篇 →</span><span class="pn-title">C17.Variational AutoEncoders</span></a></nav>
+            <p>normalizing flow是probabilistic generative model</p>
+            <h2>1.1D example</h2>
+            <p>​    <strong>思路</strong> 对一个基础的概率密度分布$Pr(z)$的随机变量做映射$x = f[z,\phi]$, 可以得到一个新的分布$Pr(x)$.</p>
+            <img src="image-20250716111313046.png" alt="image-20250716111313046" style="zoom:50%;" loading="lazy" decoding="async">
+            <p>​    <strong>fact</strong> 可以观察到, 当转换函数$f[z,\phi]$越平缓, z转换为x越集中, 相应的概率密度$Pr(x)$被压缩到一起.</p>
+            <blockquote><p><strong>复习-概率论关于随机变量函数的分布的一个命题</strong></p>
+            <p>​    <strong>prop</strong> 设$X$具有概率密度函数$f_X(x), x\in(-\infin, +\infin)$, 设$g(x)$处处可导且单调, 则有:</p>
+            <p>​    ①$Y = g(X)$是连续型随机变量</p>
+            <p>​    ②$f_Y(y)=\left\{\begin{aligned} &amp;f_X[h(y)]\cdot |h'(y)|&amp;,\alpha&lt;y&lt;\beta \\ &amp;0&amp;,elsewise \end{aligned}\right.$</p>
+            <p>​    其中, $h=g^{-1}$, $\alpha=\min[g(-\infin), g(+\infin)]$, $\beta = \max[g(-\infin), g(+\infin)]$.</p>
+            <p>注意, 这个命题包括了$g(x)$单调递减的情况, 所以结论中的$h'(y)$有绝对值.</p></blockquote>
+            <p>​    <strong>prop</strong> 条件相同, 用本章的符号重写上述命题的结论:</p>
+            <div class="math-display">$$Pr(x|\phi) = \left|\frac{\part f[z,\phi]}{\part z} \right|^{-1} \cdot Pr(z)$$</div>
+            <p>​    <strong>符号</strong> forward mapping $f[z, \phi]$ 被称为 <em>generative direction</em>, then the inverse mapping $f^{-1}[x, \phi]$ 被称为*normalizing direction*, 这是由于这一随机变量转换将复杂的概率分布$Pr(x)$变为简单的基础分布$Pr(z)$, 而且基础分布通常是normal distribution.</p>
+            <p>​    <strong>learning way</strong> 直接对带参数的分布$Pr(x|\phi)$做极大似然就行, 给定样本分布$\{x_i\}_{i=1}^I$:</p>
+            <div class="math-display">$$\begin{aligned}
+            \hat \phi &amp;= \arg\max_\phi \left[ \prod_{i=1}^{I} Pr(x_i|\phi) \right]\\
+            &amp;= \arg\min_\phi \left[ \sum_{i=1}^I -\log Pr(x_i|\phi) \right]\\
+            &amp;= \arg\min_\phi \left[ \sum_{i=1}^I \log \left|\frac{\part f[z_i,\phi]}{\part z_i} \right| - \log Pr(z_i) \right]\\
+            \end{aligned}$$</div>
+            <p>​    其中, $z_i=f^{-1}(x_i, \phi)$.</p>
+            <h2>2.general map</h2>
+            <p>​    <strong>思路</strong> 将上一节的一维随机变量拓展到多维随机变量$\bold x, \bold z\in \R^D$, 使用深度网络拟合转换函数$\bold x = \bold f[\bold z, \boldsymbol \phi]$.</p>
+            <p>​    同理, 有一个类似的等式:</p>
+            <div class="math-display">$$Pr(\bold x|\boldsymbol \phi) = \left|\frac{\part f[\bold z,\boldsymbol \phi]}{\part \bold z} \right|^{-1} \cdot Pr(\bold z)$$</div>
+            <p>​    其中, 右边第一项是$D\times D$ Jacobian矩阵的行列式的倒数, 要求转换函数可逆( 相当于双射?).</p>
+            <p>​    <strong>mapping with deep neural network</strong></p>
+            <div class="math-display">$$\bold x=\bold f[\bold z,\boldsymbol \phi] = \bold f_K[\bold f_{K-1}[\dots \bold f_2[\bold f_1[\bold z, \boldsymbol \phi_1], \boldsymbol \phi_2],\dots\boldsymbol \phi_{K-1}],\boldsymbol \phi_K]\\
+            \bold z=\bold f^{-1}[\bold x,\boldsymbol \phi] = \bold f^{-1}_1[\bold f^{-1}_{2}[\dots \bold f^{-1}_{K-1}[\bold f^{-1}_K[\bold z, \boldsymbol \phi_{K}], \boldsymbol \phi_{K-1}],\dots\boldsymbol \phi_{2}],\boldsymbol \phi_1]\\$$</div>
+            <p>​    则 Jacobian矩阵可以直接相乘:</p>
+            <div class="math-display">$$\frac{\part \bold f[\bold z, \boldsymbol\phi]}{\part \bold z}=\frac{\part \bold f_1[\bold z, \boldsymbol\phi_1]}{\part \bold z}\cdot\frac{\part \bold f_2[\bold z, \boldsymbol\phi_2]}{\part \bold f_1}\cdots\frac{\part \bold f_{K-1}[\bold z, \boldsymbol\phi_{K-1}]}{\part \bold f_{K-2}}\frac{\part \bold f_K[\bold z, \boldsymbol\phi_K]}{\part \bold f_{K-1}}$$</div>
+            <p>​    <strong>loss func</strong> 同理, 给定样本分布$\{x_i\}_{i=1}^I$, 有:</p>
+            <div class="math-display">$$\begin{aligned}
+            \hat \phi
+            &amp;= \arg\min_\phi \left[ \sum_{i=1}^I \log \left|\frac{\part f[z_i,\phi]}{\part z_i} \right| - \log Pr(z_i) \right]\\
+            \end{aligned}$$</div>
+            <p>​    其中, $z_i=f^{-1}(x_i, \phi)$.</p>
+            <p>​    <strong>Rmk 映射必须满足的几点性质</strong> 1.足够的可表达性2.双射3.逆映射计算高效4.Jacobian计算高效.</p>
+            <h2>3.Invertible network layer</h2>
+            <h3>3.1.Linear flows</h3>
+            <p>​    <strong>一般形式</strong> $\bold f[\bold h]=\boldsymbol \beta+\bold \Omega \bold h, \bold \Omega\in\R^{D\times D}$, 且$\bold \Omega$可逆, 计算inverse和det Jacobian的时间复杂度均为$\mathcal O(D^3)$.</p>
+            <p>​    <strong>特殊矩阵</strong> 对角矩阵, 正交矩阵, 三角矩阵有更高的效率.</p>
+            <p>​    一般使用LU decomposition:</p>
+            <div class="math-display">$$\Omega = PL(U+D)$$</div>
+            <p>​    其中, P是置换矩阵, L是下三角矩阵, U是上三角矩阵with对角元素为0, D为对角矩阵, inverse的时间复杂度为$\mathcal O(D^2)$, $\log \det(\Omega)=\log(diag(L)+D)$</p>
+            <p>​    <strong>缺点</strong> 线性变换永远只能得到另一个normal distribution,即当输入的分布为$\mathcal N[\mu, \Sigma]$, 输出为$\mathcal N[\beta+\Omega\mu, \Omega\Sigma\Omega^T]$.</p>
+            <h3>3.2.element wise flow</h3>
+            <p>​    <strong>动机</strong> 映射中引入非线性</p>
+            <p>​    <strong>映射</strong> 对输入向量的每个元素单独做变换, 相当于广播:</p>
+            <div class="math-display">$$\bold f[\bold h]=\begin{bmatrix}f[h_1, \phi],f[h_2,\phi],\dots, f[h_D,\phi]\end{bmatrix} ^T$$</div>
+            <p>​    其中, 函数$f$必须可逆, 直接用ReLU肯定不行.</p>
+            <p>​    <strong>Jacobian</strong> Jacobian矩阵必然是对角阵, 因为向量元素之间没有混合, 所以有:</p>
+            <div class="math-display">$$\left|\frac{\part \bold f[\bold h]}{\part \bold h} \right|=\prod\left|\frac{\part f[h_d]}{\part h_d} \right|$$</div>
+            <p>​    注意左边是Jacobian+行列式+绝对值的意思.</p>
+            <p>​    <strong>invertible func</strong> 函数$f$可以是leaky ReLU (注意必须是满射), 也可以是带参数的分段映射:</p>
+            <img src="image-20250717112736506.png" alt="image-20250717112736506" style="zoom:50%;" loading="lazy" decoding="async">
+            <p>​    带参数的分段映射比leaky ReLU有更多折线, 同时为了满足双射和段与段之间首尾相连, 有更复杂的表达式:</p>
+            <div class="math-display">$$f[h,\phi]=(hK-b+1)\phi_b + \sum_{k=1}^{b-1}\phi_k$$</div>
+            <p>​    其中, K为分段数量, b为当前位于第几个区间, $b=⌊Kh⌋ + 1$, 权值$\phi$相加为1.</p>
+            <p>​    <strong>inverse</strong> 这样分段双射函数的逆映射易得.</p>
+            <h3>3.3.Coupling flows</h3>
+            <p>​    <strong>动机</strong> 通过组合elementwise flow得到更复杂的非线性映射.</p>
+            <p>​    <strong>映射</strong> 将输入向量分为两个部分$\bold h=[\bold h_1^T, \bold h_2^T]^T$, 对第一个部分$\bold h_1$做恒等变换, 第二个部分$\bold h_2$做elementwise映射 whose 参数由第一个部分决定.</p>
+            <div class="math-display">$$h'_1=h_1 \\
+            h'_2=g[h_2, \phi[h_1]]$$</div>
+            <p>​    可以由下图表示:</p>
+            <img src="image-20250717114957510.png" alt="image-20250717114957510" style="zoom:50%;" loading="lazy" decoding="async">
+            <p>​    $\phi[x]$是elementwise函数$g(., \phi)$的参数, $\phi[x]$不需要可逆, 可以是一个神经网络.</p>
+            <p>​    jacobian和inverse同上节是简单的.</p>
+            <p>​    <strong>优化-随机性</strong> 一般在输入前增加一个随机置换, 对于图像输入, 分割和置换的单位是channel.</p>
+            <h3>3.4.Auto-regressive flows</h3>
+            <p>​    <strong>动机</strong> coupling flow的多分割升级</p>
+            <img src="image-20250717115918089.png" alt="image-20250717115918089" style="zoom:50%;" loading="lazy" decoding="async">
+            <p>​    <strong>映射</strong> 每一次elementwise映射都要使用之前的输入:</p>
+            <div class="math-display">$$h'_d=g[h_d,\phi[h_{1:d-1}]]$$</div>
+            <p>​    其中, 函数$g[•,•]$被称为 transformer(和transformer layer撞名了), 函数$g$的参数$\phi[]$被称为conditioner. 当transformer和conditioner都足够的灵活, auto regressive flow就是universal approximator.</p>
+            <p>​    forward map可以并行计算, 可以将后续片段添加mask实现, 但inverse map只能顺序计算, 因为每次计算$\bold h_i$都要依赖前面的值$\bold h_{1:i-1}$, 而前面的值也要通过inverse map得到.</p>
+            <h3>3.5.Inverse auto regressive flow(omitted)</h3>
+            <p>​    auto regressive flow的生成方向计算快, 似然方向计算慢. 可以将auto regressive flow直接反过来, 得到一个生成方向计算慢, 似然方向计算快的flow.</p>
+            <p>​    通过合适的方法结合这两种flow可以得到更高的效率.</p>
+            <h3>3.6.Residual flow: iRevNet</h3>
+            <p>​    让每个transformer的输出加上输入:</p>
+            <img src="image-20250718095755698.png" alt="image-20250718095755698" style="zoom:50%;" loading="lazy" decoding="async">
+            <div class="math-display">$$h'_1=h_1+f_1[h_2,\phi_1]\\
+            h'_2=h_2+f_2[h'_1,\phi_1]\\$$</div>
+            <p>​    <strong>注意</strong> 这两个映射不是对称的, 可以想象如果两个映射完全对称, 就无法inverse map了.</p>
+            <p>​    inverse map如下:</p>
+            <div class="math-display">$$\bold h_2 = h_2' - f_2[h_1', \phi_2] \\
+            \bold h_1 = h_1' - f_1[h_2, \phi_1] \\$$</div>
+            <p>​    这个inverse map与前几节的很不一样, 不需要用到$f_1^{-1}, f_2^{-1}$, 只需要改成减法, 所以函数$f$不需要可逆.</p>
+            <p>​    不可逆的$f$会造成Jacobian矩阵计算困难.</p>
+            <h3>3.7.Residual flow and contraction map</h3>
+            <p>​    <strong>Thm (Banach fixed point)</strong> every contraction mapping has a fixed point.</p>
+            <p>​    <strong>def</strong> contraction mapping $f[•]$ has the property:</p>
+            <div class="math-display">$$\begin{aligned}
+            dist[f[z'],f[z]] &lt; \beta \cdot dist[z',z] &amp; \forall z,z' \\
+            \end{aligned}$$</div>
+            <p>​    其中, dist是距离函数, $\beta\in(0,1)$.</p>
+            <p>​    <strong>Rmk</strong> 其实很好理解: 在函数图像上画出直线$y=x$, 交点处就是不动点. 想象循环将输出值代入到输入值当中:</p>
+            <div class="math-display">$$dist[f[f[z_0]],f[z_0]] &lt; \beta \cdot dist[z_0,f[z_0]]$$</div>
+            <p>​    得到的数列$\{z_0, f[z_0], f[f[z_0]],\dots\}$相邻两项之差会越来越小, 当相邻两项相等时就可以得到不动点.</p>
+            <p>​    <strong>Residual apply</strong> 考虑一个residual:</p>
+            <div class="math-display">$$y = z+f[z]$$</div>
+            <p>​    其中, $f$是一个contraction函数, 则给定$y$求$x$, 即求函数的逆可以变得很简单:</p>
+            <div class="math-display">$$g[x] = y-f[x]$$</div>
+            <p>​    可以轻易证明$g[x]$仍然是一个contraction函数, 则原来的问题变成了求另一个contraction函数的不动点:</p>
+            <div class="math-display">$$g[x]=x$$</div>
+            <p>​    <strong>make a contraction function</strong> 要使函数$f[x, \phi]$是一个contraction函数, 相当于其Lipschitz 常数必须小于1, 相当于任意位置的斜率小于1, 相当于函数的权值矩阵$\bold \Omega$最大的eigenvalue小于1, 这样的矩阵可以通过一个粗鲁的办法得到: 将矩阵内所有绝对值大于1的剪掉.</p>
+            <p>​    <strong>compute Jacobian</strong> 计算输出$y$的导数的log值可以化简计算:</p>
+            <div class="math-display">$$\begin{aligned}
+            \log\left[ \left| I+\frac{\part f[h,\phi]}{\part h} \right| \right] &amp;= \tr \left[\log\left[I+\frac{\part f[h,\phi]}{\part h} \right]  \right]\\
+            &amp;=\sum \frac{}{k} \tr[\frac{}{}]^k
+            \end{aligned}$$</div>
+            <p>​    上述第一步使用了$\log \left[|A|\right] = \tr[\log \left[A\right]]$, 第二步是Taylor 展开, 但trace依然很难计算, 可以通过Hutchinson’s trace estimator进行估计:</p>
+            <div class="math-display">$$\begin{aligned}
+            \tr[A]&amp;= \tr[A\mathbb E[\epsilon\epsilon^T]] \\
+            &amp;= \tr[\mathbb E[A\epsilon\epsilon^T]] \\
+            &amp;= \mathbb E[\tr[A\epsilon\epsilon^T]] \\
+            &amp;= \mathbb E[\tr[\epsilon^T A\epsilon]] \\
+            &amp;= \mathbb E[\epsilon^T A\epsilon] \\
+            \end{aligned}$$</div>
+            <p>​    则:</p>
+            <div class="math-display">$$\tr[A]=\mathbb E[]\\
+            \approx \frac1I\sum$$</div>
+            <h2>4.Multi-scale flows</h2>
+            <p>​    虽然输入$z$和输出x的维度必须一样, 我们可以通过如下方法降低计算量:</p>
+            <img src="image-20250718112300003.png" alt="image-20250718112300003" style="zoom:50%;" loading="lazy" decoding="async">
+            <h2>5.application</h2>
+            <h3>5.1.modeling densities</h3>
+            <p>​    毫无疑问可以得出新样本的似然</p>
+            <h3>5.2.synthesis</h3>
+            <p>​    <strong>缺点</strong> normalize flow生成的图像质量一直不如GAN或者diffusion, 可能是可逆函数的表达能力问题, 也可能是研究深度不够</p>
+            <h3>5.3.approximating other density models</h3>
+            <p>​    normalize flow 可以用于近似其他不好采样的分布.</p>
+            <p>​    设$Pr(x|\phi)$是student, $q(x)$是teacher, 我们根据初始分布的采样得到一些$\bold z_i$, 然后$\bold x_i=f[\bold z_i,\phi]$, 再计算极大似然, 再KL- divergence</p>
+            <div class="math-display">$$\hat\phi=\arg\min_\phi\left[KL\left[\left.\frac1I\sum_{i=1}^I\delta[\bold x-f[\bold z_i,\boldsymbol \phi]] \right\| q(\bold x)\right]\right]$$</div>
+            <h2>§Problems</h2>
+            <h3>Problem16.2</h3>
+            <p>​    Consider transforming a standard normal distribution:</p>
+            <div class="math-display">$$Pr(z)=\frac{1}{\sqrt{2\pi}}\exp[\frac{-z^2}{2}]$$</div>
+            <p>​    with the function:</p>
+            <div class="math-display">$$x = f[z]=\frac{1}{1+\exp[-z]}$$</div>
+            <p>​    Find an expression for the transformed distribution $P r(x)$.</p>
+            <p>​    <strong>Solution</strong> 首先, 这是一个$(-\infin, +\infin) \rightarrow (0,1)$的单调增映射, 立得:</p>
+            <div class="math-display">$$h(x)=-\ln(\frac1x-1), h'(x)=\frac{1}{x-x^2} \\
+            Pr(x)=
+            \left\{
+            \begin{aligned}
+            &amp;Pr_{Z}(h(x))h'(x)&amp;,0&lt;x&lt;1 \\
+            &amp;0&amp;, elsewise
+            \end{aligned}
+            \right.\\
+            =
+            \left\{
+            \begin{aligned}
+            &amp;\frac{1}{\sqrt{2\pi}}\exp\left[\frac{-\ln^2(\frac1x-1)}{2}\right]\frac{1}{x-x^2} &amp;,0&lt;x&lt;1 \\
+            &amp;0&amp;, elsewise
+            \end{aligned}
+            \right.$$</div>
+            <h3>Problem16.3</h3>
+            <p>​    Write expressions for the Jacobian of the inverse mapping $\bold z = f^{−1} [\bold x, \bold ϕ]$ and the absolute determinant of that Jacobian in forms similar to equations 16.6 and 16.7.</p>
+            <p>​    <strong>Solution</strong></p>
+            <div class="math-display">$$\frac{\part \bold f^{-1}[\bold x,\bold \phi]}{\part\bold x}=\frac{\part \bold f^{-1}_K[\bold x,\bold \phi]}{\part\bold x}\cdot \frac{\part \bold f^{-1}_{K-1}[\bold x,\bold \phi]}{\part\bold f^{-1}_{K}} \cdots \frac{\part \bold f^{-1}_2[\bold x,\bold \phi]}{\part\bold f^{-1}_{3}} \cdot \frac{\part \bold f^{-1}_{1}[\bold x,\bold \phi]}{\part\bold f^{-1}_{2}}$$</div>
+            <h3>Problem16.6</h3>
+            <p>​    Prove that if $x = f[z] = Az + b$ and $P r(z) = Norm_z[µ, Σ]$, then $P r(x) = Norm_x[Aµ + b, AΣA^T ]$ using the relation:</p>
+            <div class="math-display">$$Pr(x)=Pr(z)\cdot \left| \frac{\part f[z]}{\part z} \right|^{-1}$$</div>
+            <p>​    <strong>Proof</strong></p>
+            <div class="math-display">$$\begin{aligned}
+            Pr(x)&amp;=Pr_Z(A^{-1}x-A^{-1}b)\cdot \frac{\part(A^{-1}x-A^{-1}b)}{\part x}\\
+            &amp;=\frac{1}{|\Sigma|^{1/2}\pi^{d/2}} \exp[-\frac{(A^{-1}(x-b)-\mu)^T\Sigma^{-1}(A^{-1}(x-b)-\mu)}{2}]  \cdot |A|^{-1}\\
+            &amp;=\frac{1}{|A^T\Sigma A|^{1/2}\pi^{d/2}} \exp[-\frac{(x-b-A\mu)^T(A^{-1})^{T}\Sigma^{-1}A^{-1}(x-b-A\mu)}{2}]\\
+            &amp;=\frac{1}{|A^T\Sigma A|^{1/2}\pi^{d/2}} \exp[-\frac{(x-b-A\mu)^T(A^{T}\Sigma A)^{-1}(x-b-A\mu)}{2}]\\
+            \end{aligned}$$</div>
+            <p>​    $\blacksquare$</p>
+            <h3>Problem16.9</h3>
+            <p>​    Consider constructing an element-wise flow based on a conical combination of square root functions in equally spaced bins:</p>
+            <div class="math-display">$$\bold h'=f[h,\phi]=\sqrt{[Kh-b+1]\phi_b}+\sum_{k=1}^{b-1}\sqrt{\phi_k}$$</div>
+            <p>​    where $b = ⌊Kh⌋ + 1$ is the bin that $h$ falls into, and the parameters $ϕ_k$ are positive, and sum to one. Consider the case where $K = 5$ and $ϕ_1 = 0.1$, $ϕ_2 = 0.2$, $ϕ_3 = 0.5$, $ϕ_4 = 0.1$, $ϕ_5 = 0.1$. Draw the function $f[h, ϕ]$. Draw the inverse function $f^{−1} [h ' , ϕ]$.</p>
+            <p>​    <strong>Solution</strong> $\sum \sqrt{\phi_k}\approx 2.1$, 加起来不等于1, 怎么办:</p>
+            <img src="3264bfaea72385f10e1a2a1aa6c08b96.jpg" alt="3264bfaea72385f10e1a2a1aa6c08b96" style="zoom: 25%;" loading="lazy" decoding="async">
+            <h3>problem16.11</h3>
+            <p>​    Write out the expression for the KL divergence in equation 16.25. Why does it not matter if we can only evaluate the probability $q(x)$ up to a scaling factor $κ$? Does the network have to be invertible to minimize this loss function? Explain your reasoning.</p>
+            <div class="math-display">$$\hat\phi=\arg\min_\phi\left[KL\left[\left.\frac1I\sum_{i=1}^I\delta[\bold x-f[\bold z_i,\boldsymbol \phi]] \right\| q(\bold x)\right]\right]$$</div>
+            <p>​    <strong>Solution</strong> trivial</p>
+            <nav class="prev-next"><a class="pn-link pn-prev" href="../dl-c15-gnerative-adversarial-networks/"><span class="pn-dir">← 上一篇</span><span class="pn-title">C15.Gnerative adversarial networks</span></a><span class="pn-pos">14 / 18</span><a class="pn-link pn-next" href="../dl-c17-variational-autoencoders/"><span class="pn-dir">下一篇 →</span><span class="pn-title">C17.Variational AutoEncoders</span></a></nav>
+            <p class="article-back"><a class="read-more" href="../#a-dl-c16-normalizing-flow">← 返回技术分享</a></p>
+        </article>
+    </div>
+
+    <!-- 页脚 -->
+    <footer>
+        <div class="footer-container">
+            <div class="footer-left">
+                <div class="footer-logo">yyc's blog</div>
+                <div class="footer-copy">© <span id="year"></span></div>
+            </div>
+            <div class="footer-links">
+                <a href="mailto:yyc114@qq.com">联系我</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 设置页脚年份
+        (function(){
+            const y = new Date().getFullYear();
+            const el = document.getElementById('year');
+            if (el) el.textContent = y;
+        })();
+    </script>
+
+    <script src="../../assets/site.js"></script>
+
+    <script>
+        // 导航栏切换功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuToggle = document.querySelector('.menu-toggle');
+            const navLinksContainer = document.querySelector('.nav-links');
+
+            menuToggle.addEventListener('click', function() {
+                navLinksContainer.classList.toggle('active');
+            });
+
+            document.addEventListener('click', function(e) {
+                if (window.innerWidth <= 768 &&
+                    !e.target.closest('.nav-links') &&
+                    !e.target.closest('.menu-toggle')) {
+                    navLinksContainer.classList.remove('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="scripts/build_tech.py">
+    <title>C15.Gnerative adversarial networks · yyc's blog</title>
+    <meta name="description" content="问题 在图像的维度进行真实世界图像的概率密度估计是一件难以想象的事情.">
+    <link rel="icon" href="../../images/opt/icon-64.png">
+    <link rel="stylesheet" href="../../assets/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+            onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],macros:{'\\part':'\\partial','\\tr':'\\operatorname{tr}','\\grad':'\\nabla'}});"></script>
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <header>
+        <nav class="navbar">
+            <div class="logo">yyc's blog</div>
+            <ul class="nav-links">
+                <li><a href="../../index.html" class="nav-link">首页</a></li>
+                <li><a href="../" class="nav-link active">技术分享</a></li>
+                <li><a href="../../daily/" class="nav-link">日常分享</a></li>
+                <li><a href="../../about/" class="nav-link">关于我</a></li>
+            </ul>
+            <div class="menu-toggle">☰</div>
+        </nav>
+    </header>
+
+    <div class="headimage">
+        <img src="../../images/opt/wolf-banner.jpg" alt="C15.Gnerative adversarial networks" decoding="async" fetchpriority="high">
+    </div>
+
+    <!-- 主要内容区域 -->
+    <div class="container">
+        <article class="article">
+            <h1 class="article-title">C15.Gnerative adversarial networks</h1>
+            <div class="post-meta">发布于 2025年7月2日 | 分类: 深度学习</div>
+            <nav class="prev-next"><a class="pn-link pn-prev" href="../dl-c14-unsupervised-learning-summary/"><span class="pn-dir">← 上一篇</span><span class="pn-title">C14.Unsupervised learning summary</span></a><span class="pn-pos">13 / 18</span><a class="pn-link pn-next" href="../dl-c16-normalizing-flow/"><span class="pn-dir">下一篇 →</span><span class="pn-title">C16.Normalizing flow</span></a></nav>
+            <p><strong>问题</strong> 在图像的维度进行真实世界图像的概率密度估计是一件难以想象的事情.</p>
+            <h2>1.GAN idea</h2>
+            <p>​    <strong>符号</strong> 真实世界的训练数据为$\{\bold x_i\}$, 生成式模型想要得到new sample $\{\bold x^*_i\}$ by 两个步骤: ①选择一个latent variable $\bold z_j$, 这里可以是简单的高斯分布的采样. ②将latent variable 传递给名为*generator* 的network得到new sample $\bold x_j^* = \bold g[\bold z_j, \boldsymbol \theta]$.</p>
+            <p>​    另一个网络名为 <em>discriminator</em> 用于识别real example和new example, $f[•,\bold ϕ]$.</p>
+            <h3>1.1.训练思路</h3>
+            <p>​    discriminator 根据$\{\bold x_i\}, \{\bold x^*_i\}$的真假标签调整参数$\boldsymbol \phi$, 得到用于鉴别真假的二分类分布$f$, generator 则随后调整参数$\boldsymbol \theta$ 欺骗分布$f$, 并预测出新的$\{\bold x^*_i\}$, 如此循环往复.</p>
+            <p>​    <strong>e.g.</strong> 当$\bold x_i\in \R^1$, $g[z_j, \theta]=z_j+\theta$是个简单的平移, $\{z_j\}$取样自一维高斯分布, 训练过程如下:</p>
+            <img src="image-20250702120014689.png" alt="image-20250702120014689" style="zoom:50%;" loading="lazy" decoding="async">
+            <p>​    横轴橙色数据是不断生成的$g[z_j, \theta]$, 纵轴是预测概率$f$, 可见第三轮的时候概率变化平缓, 真假分辨更难了.</p>
+            <p>​    <strong>Rmk</strong> GAN和EM算法很像.</p>
+            <h3>1.2.loss function</h3>
+            <p>​    首先训练discriminator, by cross-entropy loss function:</p>
+            <div class="math-display">$$\hat{\boldsymbol \phi}=\mathtt{argmin}_{\boldsymbol \phi}\left[ \sum_i-(1-y_i)\log \left[1-sig[f[\bold x_i, \boldsymbol \phi] \right] - y_i\log \left[sig[f[\bold x_i, \boldsymbol \phi] \right]\right]$$</div>
+            <p>​    其中, $y_i\in\{0,1\}$, $sig[•]$是对数sigmoid函数, 假设真标签为$1$, 假标签为$0$, 可得:</p>
+            <div class="math-display">$$\hat{\boldsymbol \phi}=\mathtt{argmin}_{\boldsymbol \phi}\left[ \sum_j-\log \left[1-sig[f[\bold x^*_i, \boldsymbol \phi] \right] - \sum_i \log \left[sig[f[\bold x_i, \boldsymbol \phi] \right]\right]$$</div>
+            <p>​    再根据最大化分类的误差, 代入$x_i^*=g[z_i,\theta]$ 训练generative model:</p>
+            <div class="math-display">$$\hat{\boldsymbol \theta}=\mathtt{argmax}_{\boldsymbol \theta}\left[ \mathtt{argmin}_{\boldsymbol \phi}\left[ \sum_j-\log \left[1-sig[f[g[\bold z_i,\boldsymbol \theta], \boldsymbol \phi] \right] - \sum_i \log \left[sig[f[\bold x_i, \boldsymbol \phi] \right]\right] \right]$$</div>
+            <p>​    最终可以得到如下损失函数:</p>
+            <div class="math-display">$$\begin{aligned}
+            L[\boldsymbol \phi]&amp;=\sum_j-\log \left[1-sig[f[\bold x^*_i, \boldsymbol \phi] \right] - \sum_i \log \left[sig[f[\bold x_i, \boldsymbol \phi] \right] \\
+            L[\boldsymbol \theta] &amp;= \sum_j \log \left[1-sig[f[g[\bold z_i,\boldsymbol \theta], \boldsymbol \phi] \right]
+            \end{aligned}$$</div>
+            <p>​    损失函数$L[\boldsymbol \theta]$在原式的基础上加了一个负号, 去掉了一个常数项.</p>
+            <p>​    <strong>Rmk</strong> loss func必须要求有一个一定数量的batch.</p>
+            <h3>1.3.训练过程</h3>
+            <p>​    <em>Nash equilibrium(纳什平衡)</em> 同时最大最小化一个函数会最终达到某个平衡, 分布$f=0.5$</p>
+            <h3>1.4.deep convolution GAN</h3>
+            <p>​    常见的图像GAN如下:</p>
+            <img src="image-20250702121349483.png" alt="image-20250702121349483" style="zoom:50%;" loading="lazy" decoding="async">
+            <p>​    latent variable 直接从均匀分布采样得到, 随后做了一个线性变换, 之后的upsampling采用fractional convolution, 即使用步长为0.5的convolution, 相当于transposed convolution.</p>
+            <p>​    Discriminator最终得到的是一个一维概率密度函数$Pr\in\R$.</p>
+            <p>​    $\textcolor{red}{\bold{Warnning}}$ Latent variable真的是这样吗, 和第一章讲的 latent variable 不一样诶, 这样的 latent variable 和图像有什么关系?</p>
+            <p>​    <strong>问题</strong> 这样的GAN很难训练, 要正常训练必须用到许多优化和意义不明的参数调整:  (i) use strided convolutions for upsampling and downsampling; (ii) use BatchNorm in both generator and discriminator except in the last and first layers, respectively; (iii) use the leaky ReLU activation function (figure 3.13) in the discriminator; and (iv) use the Adam optimizer but with a lower momentum coefficient than usual.</p>
+            <h2>2.improving stability by loss func</h2>
+            <h3>2.1.GAN loss function analysis</h3>
+            <p>​    对discriminator的损失函数添加一个均值:</p>
+            <div class="math-display">$$\begin{aligned}
+            L[\boldsymbol \phi]&amp;=-\frac{1}{J}\sum_j^{J} \log \left[1-sig[f[\bold x^*_i, \boldsymbol \phi]] \right] - \frac{1}{I} \sum_i^{I} \log \left[sig[f[\bold x_i, \boldsymbol \phi]] \right] \\
+            &amp;\approx -E_{\bold x^*}\left[ \log \left[1-sig[f[\bold x^*_i, \boldsymbol \phi] \right] \right] -E_{\bold x}\left[ \log \left[sig[f[\bold x_i, \boldsymbol \phi] \right] \right] \\
+            &amp;= -\int Pr(\bold x^*)\log \left[1-sig[f[\bold x^*_i, \boldsymbol \phi]] \right]d\bold x^*-\int Pr(\bold x)\log \left[sig[f[\bold x_i, \boldsymbol \phi]] \right]d\bold x \\
+            \end{aligned}$$</div>
+            <p>​    此时, 对于任意一个未知标签样本$\tilde x$的真实标签概率为:</p>
+            <div class="math-display">$$Pr(real|\tilde{\bold x})=sig[f[\tilde{\bold x},\boldsymbol \phi]] = \frac{Pr(\tilde{\bold x}|real)}{Pr(\tilde{\bold x}|generated)+Pr(\tilde{\bold x}|real)}=\frac{Pr(\bold x)}{Pr(\bold x^*)+Pr(\bold x)}$$</div>
+            <p>​    其中, $Pr(\bold x^*),Pr(\bold x)$是全局的概率, 将上面的$sig[f[]]$代入到原式:</p>
+            <div class="math-display">$$\begin{aligned}
+            L[\boldsymbol \phi]&amp;= -\int Pr(\bold x^*)\log \left[1-sig[f[\bold x^*_i, \boldsymbol \phi]] \right]d\bold x^*-\int Pr(\bold x)\log \left[sig[f[\bold x_i, \boldsymbol \phi]] \right]d\bold x \\
+            &amp;= -\int Pr(\bold x^*)\log \left[1-\frac{Pr(\bold x)}{Pr(\bold x^*)+Pr(\bold x)} \right]d\bold x^*-\int Pr(\bold x)\log \left[\frac{Pr(\bold x)}{Pr(\bold x^*)+Pr(\bold x)} \right]d\bold x  \\
+            &amp;= -\int Pr(\bold x^*)\log \left[\frac{Pr(\bold x^*)}{Pr(\bold x^*)+Pr(\bold x)} \right]d\bold x^*-\int Pr(\bold x)\log \left[\frac{Pr(\bold x)}{Pr(\bold x^*)+Pr(\bold x)} \right]d\bold x  \\
+            \end{aligned}$$</div>
+            <p>​    上式加上一些系数和常数项就和 <em>Jensen-Shannon divergence</em> 长得很像了:</p>
+            <div class="math-display">$$\begin{aligned}
+            &amp;D_{JS}[Pr(x^*) \| Pr(x) ] \\
+            &amp;= \frac12D_{KL}\left[ Pr(\bold x^*)\left\| \frac{Pr(\bold x^*)+Pr(\bold x)}{2} \right. \right] + \frac12D_{KL}\left[ Pr(\bold x)\left\| \frac{Pr(\bold x^*)+Pr(\bold x)}{2} \right. \right] \\
+            &amp;= \frac12\int Pr(\bold x^*)\log \left[\frac{2Pr(\bold x^*)}{Pr(\bold x^*)+Pr(\bold x)} \right]d\bold x^* +\frac12 \int Pr(\bold x)\log \left[\frac{2Pr(\bold x)}{Pr(\bold x^*)+Pr(\bold x)} \right]d\bold x  \\
+            \end{aligned}$$</div>
+            <p>​    上式的两项中, 前者表示精度, 后者表示覆盖度, (相当于查准率和查全率).</p>
+            <p>​    generator的损失函数没有第二项, 这可能是导致GAN生成的数据过于相似的原因.</p>
+            <h3>2.2.梯度消失</h3>
+            <p>​    如果生成的sample和real sample之间毫无交叉, discriminator会表现的很好, 但generator的训练会出现梯度消失, 即无论往哪个方向下降损失函数的变化都很小.</p>
+            <h3>2.3.Wasserstein distance(不理解)</h3>
+            <p>​    假设两个分布$Pr(x)$和$q(x)$, 分为$K$个区间(bin), 区间用$i$或者$j$表示, 则想象区间$i$到区间$j$的cost是下标之差$|i-j|$, 区间$i$到区间$j$上分布的transport plan为$P_{ij}$, 则Wasserstein距离定义为:</p>
+            <div class="math-display">$$D_w[Pr(x) \| q(x)]=\min_{\bold P}\left[ \sum_{i,j}P_{ij}\cdot|i-j| \right]$$</div>
+            <p>​    其中, transport plan有如下限制:</p>
+            <div class="math-display">$$\sum_jP_{ij}=Pr(x=i)\\
+            \sum_iP_{ij}=q(x=j)\\
+            P_{ij} \ge 0$$</div>
+            <p>​    所以, 要得出$D_w$, 就得把transport plan矩阵$\bold P$解出来.</p>
+            <p>​    <strong>求解P</strong> 该最优化问题是一个线性规划问题(linear programing problem):</p>
+            <p>​    问题的原形式和等价形式(dual form)可以写为:</p>
+            <p>| primal form                                     | dual form                               | | ----------------------------------------------- | --------------------------------------- | | minimize $\bold c^T \bold p$                    | maximize $\bold b^T\bold f$             | | such that $\bold A\bold p=\bold b, \bold p\ge0$ | such that $\bold A^T\bold f\le \bold c$ |</p>
+            <p>​    其中, $\bold p$是矩阵$\bold P$中的行向量或列向量, $\bold c$是区间cost的向量, $\bold A\bold p=\bold b$可以表示上述两个限制. 对系数做一点调整就可以转化为一个通用的线性规划问题(dual form), 转化的证明omitted$\textcolor{red}{\bold{Error}}$.</p>
+            <p>​    可以写出$\bold A, \bold b, \bold c$的表达式$\textcolor{red}{\bold{Error}}$怎么写呢, 则原问题写为:</p>
+            <div class="math-display">$$D_w[Pr(x) \| q(x)]=\max_{\bold f}\left[ \sum_{i}Pr(x=i)f_i-\sum_jq(x=j)f_j \right]$$</div>
+            <p>​    有如下限制:</p>
+            <div class="math-display">$$|f_{i+1}-f_i|&lt;1$$</div>
+            <p>​    线性规划问题有成熟的算法解决, 这里省略omitted.</p>
+            <h3>2.4.连续形式的Wasserstein distance(不理解)</h3>
+            <p>​    多维连续分布的Wasserstein距离可以写为:</p>
+            <div class="math-display">$$D_w[Pr(\bold x) \| q(\bold x)]=\min_{\bold \pi[•,•]}\left[ \int\int\pi(\bold x_1,\bold x_2)\cdot\|\bold x_1-\bold x_2\| d\bold x_1d\bold x_2 \right]$$</div>
+            <p>​    $\pi(\bold x_1,\bold x_2)$表示了点$\bold x_1$到点$\bold x_2$上分布的transport plan.</p>
+            <p>​    线性规划的等价形式写为:</p>
+            <div class="math-display">$$D_w[Pr(\bold x) \| q(\bold x)]=\max_{f[\bold x]}\left[ \int Pr(\bold x)f[\bold x]d\bold x-\int q(\bold x)f[\bold x] d\bold x \right]$$</div>
+            <p>​    限制为:</p>
+            <div class="math-display">$$\left|\grad f[\bold x]\right| &lt; 1$$</div>
+            <h2>3.更多优化</h2>
+            <p>​    <strong>progressive growing</strong> 在训练过程中逐渐增加generator和discriminator的深度,</p>
+            <p>​    <strong>min- batch discriminator(不理解)</strong></p>
+            <p>​    <strong>truncation</strong> latent variable进行合适的调整, 会在增加图像质量的同时降低图像的多样性, 进一步在这两者间进行trade-off.</p>
+            <h2>4.conditional generation</h2>
+            <p>​    GAN不能选择生成图像的属性, 除非训练多个不同的GAN, 这是由于GAN只能一次性生成一个分布上的所有可能图像. Conditional generation models provide us with this control.</p>
+            <h3>4.1.conditional GAN</h3>
+            <p>​    使用一个向量 $\bold c$ 作为属性值, 传入generator和discriminator中: $\bold g[\bold z, \bold c, \boldsymbol \theta] = (\bold x^*, \bold c),\bold f[\bold x, \bold c, \boldsymbol \phi]=Pr(\bold x,\bold c)\in\R$, 生成数据前需要人工指定一个确定的c, 而真实数据需要自带真实标签c, 最终 $\bold f$ 得出的是数据对$(\bold x, \bold c)$真实的概率.</p>
+            <p>​    z如何与c作用, 如果$z\in\R$, c可以直接接在z后面, 如果$x\in\R^2$, c可以先upsampling再插入x的channel中.</p>
+            <p>​    注意generator输出的c和输入的c是一样的.</p>
+            <img src="image-20250714095952101.png" alt="image-20250714095952101" style="zoom:50%;" loading="lazy" decoding="async">
+            <h3>4.2.Auxiliary classifier GAN(ACGAN)</h3>
+            <p>​    这一模型的数据是不带属性c的, 如上图, 只有generator的输入带c, discriminator的输出是一个$\R^{C+1}$的向量, 其中$\R^C$用来表示各个属性的概率, $\R$用来表示图像的真实概率.</p>
+            <h3>4.3. info GAN(不理解)</h3>
+            <p>​    不进行人工标记c, generator输入的c是随机分布, discriminator判断真实的同时还直接输出预测的c.($\textcolor{red}{Error}$这个c是如何进行监督的? 可能作为x的一部分放进去了)</p>
+            <img src="image-20250714105404955.png" alt="image-20250714105404955" style="zoom: 50%;" loading="lazy" decoding="async">
+            <p>​    上述图bcd是生成的结果, 每列分别是c1c2c3的不同值, 可见该网络不仅进行了数字分类, 还得到了类似于倾斜角度和粗细的分类.</p>
+            <h2>5.image translation(omitted)</h2>
+            <h3>5.1.Pix2Pix</h3>
+            <p>​    灰度图转RGB</p>
+            <p>​    contant loss + discriminator loss (for synthesize pair and real pair)</p>
+            <h3>5.2.Adversarial loss(敌对损失)</h3>
+            <p>​    低分辨率转高分辨率</p>
+            <p>​    contant loss + VGG loss + adversarial loss (discriminator loss for synthesize output and real image)</p>
+            <h3>5.3.CycleGAN</h3>
+            <p>​    现实图转莫奈油画风格图</p>
+            <p>​    contant loss + adversarial loss(同上) + cycle-consistency ()</p>
+            <h2>6.Style GAN(omitted)</h2>
+            <p>​    使用特殊的方式在训练中运用初始的latent variable, 使得latent variable具有一定的意义, 在训练完成后对latent variable进行改变可以得到有意义的图像输出的改变.</p>
+            <p>​    初始设置两个latent variable, 分别调控图像的noise 和 style, 这两个latent variable在训练中的使用方法如下图:</p>
+            <img src="image-20250716101501300.png" alt="image-20250716101501300" style="zoom:50%;" loading="lazy" decoding="async">
+            <nav class="prev-next"><a class="pn-link pn-prev" href="../dl-c14-unsupervised-learning-summary/"><span class="pn-dir">← 上一篇</span><span class="pn-title">C14.Unsupervised learning summary</span></a><span class="pn-pos">13 / 18</span><a class="pn-link pn-next" href="../dl-c16-normalizing-flow/"><span class="pn-dir">下一篇 →</span><span class="pn-title">C16.Normalizing flow</span></a></nav>
+            <p class="article-back"><a class="read-more" href="../#a-dl-c15-gnerative-adversarial-networks">← 返回技术分享</a></p>
+        </article>
+    </div>
+
+    <!-- 页脚 -->
+    <footer>
+        <div class="footer-container">
+            <div class="footer-left">
+                <div class="footer-logo">yyc's blog</div>
+                <div class="footer-copy">© <span id="year"></span></div>
+            </div>
+            <div class="footer-links">
+                <a href="mailto:yyc114@qq.com">联系我</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 设置页脚年份
+        (function(){
+            const y = new Date().getFullYear();
+            const el = document.getElementById('year');
+            if (el) el.textContent = y;
+        })();
+    </script>
+
+    <script src="../../assets/site.js"></script>
+
+    <script>
+        // 导航栏切换功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuToggle = document.querySelector('.menu-toggle');
+            const navLinksContainer = document.querySelector('.nav-links');
+
+            menuToggle.addEventListener('click', function() {
+                navLinksContainer.classList.toggle('active');
+            });
+
+            document.addEventListener('click', function(e) {
+                if (window.innerWidth <= 768 &&
+                    !e.target.closest('.nav-links') &&
+                    !e.target.closest('.menu-toggle')) {
+                    navLinksContainer.classList.remove('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

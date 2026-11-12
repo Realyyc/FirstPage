@@ -4,391 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>yyc's blog ^ ^</title>
-    <link rel="icon" href="../images/test.png">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        body {
-            background-color: #f8f9fa;
-            color: #333;
-            line-height: 1.6;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            
-            background-image: url("../images/eva.jpg"); /* Path to your image */
-            background-repeat: no-repeat; /* Prevents tiling */
-            background-size: cover; /* Ensures the image covers the entire screen */
-            background-attachment: fixed; /* Keeps the image fixed during scrolling */
-            background-position: center; /* Centers the image */
-        }
-
-        html, body {
-            height: 100%;
-        }
-        
-        /* 顶部导航栏样式 */
-        header {
-            background-color: #00529fd0;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-        
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem 5%;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        
-        .logo {
-            font-size: 1.5rem;
-            font-weight: 700;
-            text-shadow: 3px 3px 1px black;
-            color: #fff;
-        }
-        
-        .nav-links {
-            display: flex;
-            list-style: none;
-        }
-        
-        .nav-links li {
-            margin-left: 2rem;
-        }
-        
-        .nav-links a {
-            text-decoration: none;
-            color: #fff;
-            font-weight: 500;
-            transition: color 0.3s;
-            padding: 0.5rem 0;
-            position: relative;
-        }
-        
-        .nav-links a:hover {
-            color: #3498db;
-        }
-        
-        .nav-links a.active {
-            color: #3498db;
-        }
-        
-        .nav-links a.active::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background-color: #3498db;
-        }
-        
-        .menu-toggle {
-            display: none;
-            cursor: pointer;
-            font-size: 1.5rem;
-            color: #fff;
-        }
-        
-        /* 主要内容区域样式 */
-        .container {
-            /* max-width: 1200px; */
-            width: 90%;
-            margin: 2rem auto;
-            padding: 0 5%;
-            flex: 1 0 auto;
-        }
-        
-        .content-section {
-            display: none;
-            animation: fadeIn 0.5s ease;
-        }
-        
-        .content-section.active {
-            display: block;
-        }
-        
-        .section-title {
-            font-size: 2rem;
-            margin-bottom: 1.5rem;
-            color: #012242;
-            border-left: 4px solid #3498db;
-            padding-left: 1rem;
-        }
-        
-        .post-card {
-            background-color: #f4f4f4e2;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-        
-        .post-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-        }
-        
-        .post-title {
-            font-size: 1.3rem;
-            margin-bottom: 0.5rem;
-            color: #2c3e50;
-        }
-        
-        .post-meta {
-            color: #7f8c8d;
-            font-size: 0.9rem;
-            margin-bottom: 1rem;
-        }
-        
-        .post-excerpt {
-            color: #555;
-            margin-bottom: 1rem;
-        }
-        
-        .read-more {
-            display: inline-block;
-            color: #3498db;
-            text-decoration: none;
-            font-weight: 500;
-            transition: color 0.3s;
-        }
-        
-        .read-more:hover {
-            color: #2980b9;
-        }
-        
-        /* 关于页面样式 */
-        .about-content {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 2rem;
-        }
-        
-        .about-text {
-            flex: 1;
-            min-width: 300px;
-        }
-        
-        .about-image {
-            flex: 0 0 300px;
-            text-align: center;
-        }
-        
-        /* .about-image img {
-            max-width: 100%;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        } */
-
-        footer {
-            flex-shrink: 0;
-            background-color: #032b57;
-            color: #e6f2ff;
-            padding: 1.5rem 5%;
-            margin-top: 2rem;
-        }
-        .footer-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
-        .footer-left {
-            display: flex;
-            flex-direction: column;
-            gap: 0.3rem;
-        }
-        .footer-logo {
-            font-weight: 700;
-            font-size: 1.1rem;
-            color: #fff;
-            text-shadow: 1px 1px 0 rgba(0,0,0,0.3);
-        }
-        .footer-copy {
-            font-size: 0.9rem;
-            color: #cfe9ff;
-        }
-        .footer-links {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-        .footer-links a {
-            color: #9fd0ff;
-            text-decoration: none;
-            font-weight: 500;
-        }
-        .footer-links a:hover {
-            color: #fff;
-            text-decoration: underline;
-        }
-        
-        /* 联系页面样式 */
-        .contact-form {
-            max-width: 600px;
-        }
-        
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-        }
-        
-        .form-group input,
-        .form-group textarea {
-            width: 100%;
-            padding: 0.8rem;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 1rem;
-        }
-        
-        .form-group textarea {
-            min-height: 150px;
-            resize: vertical;
-        }
-        
-        .submit-btn {
-            background-color: #3498db;
-            color: white;
-            border: none;
-            padding: 0.8rem 1.5rem;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: background-color 0.3s;
-        }
-        
-        .submit-btn:hover {
-            background-color: #2980b9;
-        }
-        
-        /* 动画效果 */
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        
-        /* 响应式设计 */
-        @media (max-width: 768px) {
-            .nav-links {
-                display: none;
-                flex-direction: column;
-                position: absolute;
-                top: 100%;
-                left: 0;
-                width: 100%;
-                background-color: #00529fd0;
-                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-                padding: 1rem 0;
-            }
-            
-            .nav-links.active {
-                display: flex;
-            }
-            
-            .nav-links li {
-                margin: 0;
-                text-align: center;
-                padding: 0.8rem 0;
-            }
-            
-            .menu-toggle {
-                display: block;
-            }
-            
-            .about-content {
-                flex-direction: column;
-            }
-            
-            .about-image {
-                order: -1;
-            }
-
-            footer {
-                padding: 1rem 4%;
-            }
-            .footer-container {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            .footer-links {
-                width: 100%;
-                justify-content: flex-start;
-                flex-wrap: wrap;
-                gap: 0.6rem;
-                margin-top: 0.5rem;
-            }
-        }
-        /* 头像与动画效果 */
-        .image-container {
-            position: relative;
-            width: 250px;
-            height: 250px;
-            background-color: #e0e0e0;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto;
-        }
-        .bottom-image {
-            object-fit: cover;
-            transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            position: relative;
-            top: 0;
-            left: 0;
-            zoom: 15%;
-        }
-        .top-image {
-            position: absolute;
-            transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            top: 58px;
-            left: 125px;
-            width: 100px;
-            height: 100px;
-        }
-
-        .top-image.moved {
-            left: 125px;
-            top: 70px;
-            transform: rotate(-15deg);
-        }
-
-        h1 {
-            margin: 0;
-            padding: 20px 0;
-            color: #ff9500;
-            text-shadow: 3px 3px 1px black;
-            font-size: 60px;
-            text-align: center;
-        }
-    </style>
+    <link rel="icon" href="../images/opt/icon-64.png">
+    <link rel="stylesheet" href="../assets/style.css">
     <!-- 用户离开页面时改变页面标题 -->
-    <script>document.addEventListener('visibilitychange', function(){if(document.visibilityState=='hidden'){normal_title=document.title;document.title='yyc\'s blog qwq...';}else{document.title=normal_title;}});</script>
+    <script>var normal_title = document.title; document.addEventListener('visibilitychange', function(){if(document.visibilityState=='hidden'){normal_title=document.title;document.title='yyc\'s blog qwq...';}else{document.title=normal_title;}});</script>
     <!-- 移动墨镜 -->
     <script>
       document.addEventListener('DOMContentLoaded', function() {
         const image = document.getElementById("topImage");
+        if (!image) return; // 本页无墨镜图片，直接跳过
         let isMoved = false;
 
         image.addEventListener('click', function() {
@@ -404,16 +28,12 @@
         })
       })
     </script>
-    <!-- 字体设置 -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@200..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
 </head>
 <body>
     <!-- 顶部导航栏 -->
     <header>
         <nav class="navbar">
-            <div class="logo">yyc's blog(施工中)</div>
+            <div class="logo">yyc's blog</div>
             <ul class="nav-links">
                 <li><a href="../index.html" class="nav-link" data-target="home">首页</a></li>
                 <li><a href="#" class="nav-link active" data-target="tech">技术分享</a></li>
@@ -430,14 +50,286 @@
         <!-- 技术分享内容 -->
         <section id="tech" class="content-section active">
             <h2 class="section-title">技术分享</h2>
-            
-            <div class="post-card">
-                <h3 class="post-title">git的使用(test)</h3>
-                <div class="post-meta">发布于 2025年10月14日 | 分类: 技术分享</div>
-                <p class="post-excerpt">git初学者的一点笔记</p>
-                <a href="../tech/git/" class="read-more">阅读更多</a>
+            <!-- ARTICLES:START 由 scripts/build_tech.py 生成，请勿手改 -->
+            <nav class="group-nav">
+                <a href="#group-0">深度学习<span>18</span></a>
+                <a href="#group-1">数学<span>3</span></a>
+                <a href="#group-2">HTML<span>8</span></a>
+                <a href="#group-3">CSS<span>3</span></a>
+                <a href="#group-4">JS<span>2</span></a>
+                <a href="#group-5">其他<span>1</span></a>
+            </nav>
+
+            <div class="article-group" id="group-0">
+                <h3 class="group-title">深度学习<span class="group-count">18</span></h3>
+
+                <div class="post-card" id="a-dl-c3-shallow-neural-network">
+                    <h4 class="post-title"><a href="./dl-c3-shallow-neural-network/">C3.Shallow Neural Network</a></h4>
+                    <div class="post-meta">发布于 2025年5月31日 | 分类: 深度学习</div>
+                    <p class="post-excerpt">​	当x为1维，y为1维，隐藏层的节点数决定了x-y图像分段数量的上限</p>
+                    <a href="./dl-c3-shallow-neural-network/" class="read-more">阅读更多</a>
+                </div>
+
+                <div class="post-card" id="a-dl-c4-deep-neural-network">
+                    <h4 class="post-title"><a href="./dl-c4-deep-neural-network/">C4.Deep Neural Network</a></h4>
+                    <div class="post-meta">发布于 2025年5月31日 | 分类: 深度学习</div>
+                    <p class="post-excerpt">​	将两个{R}^1  {R}^1且3个隐藏层的浅层网络直接首尾相连，注意中间的y没有ReLU</p>
+                    <a href="./dl-c4-deep-neural-network/" class="read-more">阅读更多</a>
+                </div>
+
+                <div class="post-card" id="a-dl-c5-loss-function">
+                    <h4 class="post-title"><a href="./dl-c5-loss-function/">C5.Loss Function</a></h4>
+                    <div class="post-meta">发布于 2025年5月31日 | 分类: 深度学习</div>
+                    <p class="post-excerpt">​	对判别式做拟合，注意下式的x是分布参数而不是自变量：</p>
+                    <a href="./dl-c5-loss-function/" class="read-more">阅读更多</a>
+                </div>
+
+                <div class="post-card" id="a-dl-c6-fitting-models">
+                    <h4 class="post-title"><a href="./dl-c6-fitting-models/">C6.Fitting models</a></h4>
+                    <div class="post-meta">发布于 2025年5月31日 | 分类: 深度学习</div>
+                    <p class="post-excerpt">本章介绍Gradient Descent算法，关于Gradient的计算留在下章</p>
+                    <a href="./dl-c6-fitting-models/" class="read-more">阅读更多</a>
+                </div>
+
+                <div class="post-card" id="a-dl-c7-gradients-initialization">
+                    <h4 class="post-title"><a href="./dl-c7-gradients-initialization/">C7.Gradients &amp; Initialization</a></h4>
+                    <div class="post-meta">发布于 2025年6月2日 | 分类: 深度学习</div>
+                    <p class="post-excerpt">​	符号 设第k个隐藏层的权重为 _k,_k ,激活函数为 a[x] ,上一层的输入为 h_k ,仿射变换的结果为 f_k ,每一层会进行如…</p>
+                    <a href="./dl-c7-gradients-initialization/" class="read-more">阅读更多</a>
+                </div>
+
+                <div class="post-card" id="a-dl-c8-measuring-performance-hyperparameters">
+                    <h4 class="post-title"><a href="./dl-c8-measuring-performance-hyperparameters/">C8.Measuring performance &amp; hyperparameters</a></h4>
+                    <div class="post-meta">发布于 2025年6月2日 | 分类: 深度学习</div>
+                    <p class="post-excerpt">​	将数据分为训练集和测试集, 用来度量泛化误差</p>
+                    <a href="./dl-c8-measuring-performance-hyperparameters/" class="read-more">阅读更多</a>
+                </div>
+
+                <div class="post-card" id="a-dl-c9-regularization">
+                    <h4 class="post-title"><a href="./dl-c9-regularization/">C9.Regularization</a></h4>
+                    <div class="post-meta">发布于 2025年6月2日 | 分类: 深度学习</div>
+                    <p class="post-excerpt">狭义上来说, Regularization指在损失函数中添加东西, 用于在训练中利于某个参数的选择. 广义上来说, Regularizati…</p>
+                    <a href="./dl-c9-regularization/" class="read-more">阅读更多</a>
+                </div>
+
+                <div class="post-card" id="a-dl-c10-convolution-neural-network">
+                    <h4 class="post-title"><a href="./dl-c10-convolution-neural-network/">C10.Convolution Neural Network</a></h4>
+                    <div class="post-meta">发布于 2025年6月6日 | 分类: 深度学习</div>
+                    <p class="post-excerpt">​	图像是高纬度的、有结构的, 直接用全连接层(Affine)去处理图像很糟糕: 高纬度输入让参数爆炸式增长, 相邻像素间的某种连续性不能在…</p>
+                    <a href="./dl-c10-convolution-neural-network/" class="read-more">阅读更多</a>
+                </div>
+
+                <div class="post-card" id="a-dl-c11-residual-network-batch-norm">
+                    <h4 class="post-title"><a href="./dl-c11-residual-network-batch-norm/">C11.Residual Network &amp; batch norm</a></h4>
+                    <div class="post-meta">发布于 2025年6月11日 | 分类: 深度学习</div>
+                    <p class="post-excerpt">动机 Residual block可以让深层网络正常训练</p>
+                    <a href="./dl-c11-residual-network-batch-norm/" class="read-more">阅读更多</a>
+                </div>
+
+                <div class="post-card" id="a-dl-c12-transformers">
+                    <h4 class="post-title"><a href="./dl-c12-transformers/">C12.Transformers</a></h4>
+                    <div class="post-meta">发布于 2025年6月16日 | 分类: 深度学习</div>
+                    <p class="post-excerpt">​	给出如下段落, 想要对其做初步的处理用于进行下一步的处理:</p>
+                    <a href="./dl-c12-transformers/" class="read-more">阅读更多</a>
+                </div>
+
+                <div class="post-card" id="a-dl-c13-graph-neural-network">
+                    <h4 class="post-title"><a href="./dl-c13-graph-neural-network/">C13.Graph Neural Network</a></h4>
+                    <div class="post-meta">发布于 2025年6月28日 | 分类: 深度学习</div>
+                    <p class="post-excerpt">​	使用邻接表表示节点之间是否连接, 存在节点上的信息称为node embedding, 存在边上的信息称为edge embedding, …</p>
+                    <a href="./dl-c13-graph-neural-network/" class="read-more">阅读更多</a>
+                </div>
+
+                <div class="post-card" id="a-dl-c14-unsupervised-learning-summary">
+                    <h4 class="post-title"><a href="./dl-c14-unsupervised-learning-summary/">C14.Unsupervised learning summary</a></h4>
+                    <div class="post-meta">发布于 2025年7月1日 | 分类: 深度学习</div>
+                    <p class="post-excerpt">​	下图介绍了3种无监督模型的关系:</p>
+                    <a href="./dl-c14-unsupervised-learning-summary/" class="read-more">阅读更多</a>
+                </div>
+
+                <div class="post-card" id="a-dl-c15-gnerative-adversarial-networks">
+                    <h4 class="post-title"><a href="./dl-c15-gnerative-adversarial-networks/">C15.Gnerative adversarial networks</a></h4>
+                    <div class="post-meta">发布于 2025年7月2日 | 分类: 深度学习</div>
+                    <p class="post-excerpt">问题 在图像的维度进行真实世界图像的概率密度估计是一件难以想象的事情.</p>
+                    <a href="./dl-c15-gnerative-adversarial-networks/" class="read-more">阅读更多</a>
+                </div>
+
+                <div class="post-card" id="a-dl-c16-normalizing-flow">
+                    <h4 class="post-title"><a href="./dl-c16-normalizing-flow/">C16.Normalizing flow</a></h4>
+                    <div class="post-meta">发布于 2025年7月16日 | 分类: 深度学习</div>
+                    <p class="post-excerpt">normalizing flow是probabilistic generative model</p>
+                    <a href="./dl-c16-normalizing-flow/" class="read-more">阅读更多</a>
+                </div>
+
+                <div class="post-card" id="a-dl-c17-variational-autoencoders">
+                    <h4 class="post-title"><a href="./dl-c17-variational-autoencoders/">C17.Variational AutoEncoders</a></h4>
+                    <div class="post-meta">发布于 2025年7月21日 | 分类: 深度学习</div>
+                    <p class="post-excerpt">​	不同于直接对Pr( x)建模, 而是对联合概率Pr( x, z)建模, 再通过边缘化得到Pr(x):</p>
+                    <a href="./dl-c17-variational-autoencoders/" class="read-more">阅读更多</a>
+                </div>
+
+                <div class="post-card" id="a-dl-c18-diffusion-models">
+                    <h4 class="post-title"><a href="./dl-c18-diffusion-models/">C18.Diffusion models</a></h4>
+                    <div class="post-meta">发布于 2025年7月23日 | 分类: 深度学习</div>
+                    <p class="post-excerpt">先前的3个章节中: GAN在微调后有好的效果但不能给出概率, normalizing flow限制条件严格且计算复杂, VAE的损失函数只能…</p>
+                    <a href="./dl-c18-diffusion-models/" class="read-more">阅读更多</a>
+                </div>
+
+                <div class="post-card" id="a-dl-c19-reinforcement-learning">
+                    <h4 class="post-title"><a href="./dl-c19-reinforcement-learning/">C19.Reinforcement Learning</a></h4>
+                    <div class="post-meta">发布于 2025年7月7日 | 分类: 深度学习</div>
+                    <p class="post-excerpt">动机 agent, environment, FSM, 目标, 回报率</p>
+                    <a href="./dl-c19-reinforcement-learning/" class="read-more">阅读更多</a>
+                </div>
+
+                <div class="post-card" id="a-dl-c20-why-dose-deep-net-work">
+                    <h4 class="post-title"><a href="./dl-c20-why-dose-deep-net-work/">C20.Why dose deep net work</a></h4>
+                    <div class="post-meta">发布于 2025年7月29日 | 分类: 深度学习</div>
+                    <p class="post-excerpt">问题 deep learning 为什么工作的很好, 上面十几章都在讲深层网络结构, 谈到工作好的原因, 可能还得回到第八章的double …</p>
+                    <a href="./dl-c20-why-dose-deep-net-work/" class="read-more">阅读更多</a>
+                </div>
             </div>
-            
+
+            <div class="article-group" id="group-1">
+                <h3 class="group-title">数学<span class="group-count">3</span></h3>
+
+                <div class="post-card" id="a-math-differential-geometry">
+                    <h4 class="post-title"><a href="./math-differential-geometry/">Differential Geometry</a></h4>
+                    <div class="post-meta">发布于 2026年11月12日 | 分类: 数学</div>
+                    <p class="post-excerpt">LaTeX 排版的数学笔记（PDF，1.3 MB）</p>
+                    <a href="./math-differential-geometry/" class="read-more">阅读更多</a>
+                </div>
+
+                <div class="post-card" id="a-math-real-analysis">
+                    <h4 class="post-title"><a href="./math-real-analysis/">Real Analysis</a></h4>
+                    <div class="post-meta">发布于 2026年11月12日 | 分类: 数学</div>
+                    <p class="post-excerpt">LaTeX 排版的数学笔记（PDF，1.4 MB）</p>
+                    <a href="./math-real-analysis/" class="read-more">阅读更多</a>
+                </div>
+
+                <div class="post-card" id="a-math-real-analysis-2">
+                    <h4 class="post-title"><a href="./math-real-analysis-2/">Real Analysis 2</a></h4>
+                    <div class="post-meta">发布于 2026年11月12日 | 分类: 数学</div>
+                    <p class="post-excerpt">LaTeX 排版的数学笔记（PDF，1.3 MB）</p>
+                    <a href="./math-real-analysis-2/" class="read-more">阅读更多</a>
+                </div>
+            </div>
+
+            <div class="article-group" id="group-2">
+                <h3 class="group-title">HTML<span class="group-count">8</span></h3>
+
+                <div class="post-card" id="a-html-l1-basic-html-syntax">
+                    <h4 class="post-title"><a href="./html-l1-basic-html-syntax/">L1.Basic HTML syntax</a></h4>
+                    <div class="post-meta">发布于 2025年12月16日 | 分类: HTML</div>
+                    <p class="post-excerpt">Ref https://developer.mozilla.org/zh-CN/docs/Learn_web_development/Get…</p>
+                    <a href="./html-l1-basic-html-syntax/" class="read-more">阅读更多</a>
+                </div>
+
+                <div class="post-card" id="a-html-l2-html-text">
+                    <h4 class="post-title"><a href="./html-l2-html-text/">L2.HTML text</a></h4>
+                    <div class="post-meta">发布于 2025年12月17日 | 分类: HTML</div>
+                    <p class="post-excerpt">​	使用六级标题可以让内容富有结构和语义:</p>
+                    <a href="./html-l2-html-text/" class="read-more">阅读更多</a>
+                </div>
+
+                <div class="post-card" id="a-html-l3-html-document-structure">
+                    <h4 class="post-title"><a href="./html-l3-html-document-structure/">L3.HTML document Structure</a></h4>
+                    <div class="post-meta">发布于 2025年12月20日 | 分类: HTML</div>
+                    <p class="post-excerpt">所有网站的body内部有着类似的结构, HTML提供了对应的element以便语义化:</p>
+                    <a href="./html-l3-html-document-structure/" class="read-more">阅读更多</a>
+                </div>
+
+                <div class="post-card" id="a-html-l4-links">
+                    <h4 class="post-title"><a href="./html-l4-links/">L4.Links</a></h4>
+                    <div class="post-meta">发布于 2025年12月22日 | 分类: HTML</div>
+                    <p class="post-excerpt">links是web的灵魂.</p>
+                    <a href="./html-l4-links/" class="read-more">阅读更多</a>
+                </div>
+
+                <div class="post-card" id="a-html-l5-images">
+                    <h4 class="post-title"><a href="./html-l5-images/">L5.Images</a></h4>
+                    <div class="post-meta">发布于 2026年1月30日 | 分类: HTML</div>
+                    <p class="post-excerpt">回顾一下img是一个void element:</p>
+                    <a href="./html-l5-images/" class="read-more">阅读更多</a>
+                </div>
+
+                <div class="post-card" id="a-html-l6-video-and-audio">
+                    <h4 class="post-title"><a href="./html-l6-video-and-audio/">L6.Video and audio</a></h4>
+                    <div class="post-meta">发布于 2026年1月31日 | 分类: HTML</div>
+                    <p class="post-excerpt"></p>
+                    <a href="./html-l6-video-and-audio/" class="read-more">阅读更多</a>
+                </div>
+
+                <div class="post-card" id="a-html-l7-table">
+                    <h4 class="post-title"><a href="./html-l7-table/">L7.table</a></h4>
+                    <div class="post-meta">发布于 2026年2月1日 | 分类: HTML</div>
+                    <p class="post-excerpt">表示一个格子, 相邻的td默认变成一行表格, 用于分行:</p>
+                    <a href="./html-l7-table/" class="read-more">阅读更多</a>
+                </div>
+
+                <div class="post-card" id="a-html-l8-forms-and-buttons">
+                    <h4 class="post-title"><a href="./html-l8-forms-and-buttons/">L8.Forms and buttons</a></h4>
+                    <div class="post-meta">发布于 2026年2月1日 | 分类: HTML</div>
+                    <p class="post-excerpt">Press me</p>
+                    <a href="./html-l8-forms-and-buttons/" class="read-more">阅读更多</a>
+                </div>
+            </div>
+
+            <div class="article-group" id="group-3">
+                <h3 class="group-title">CSS<span class="group-count">3</span></h3>
+
+                <div class="post-card" id="a-css-l1-introduction">
+                    <h4 class="post-title"><a href="./css-l1-introduction/">L1.Introduction</a></h4>
+                    <div class="post-meta">发布于 2026年2月2日 | 分类: CSS</div>
+                    <p class="post-excerpt">HTML是一个mark up document, document不选择如何展示他们, 我们通过CSS(Cascading Style Sh…</p>
+                    <a href="./css-l1-introduction/" class="read-more">阅读更多</a>
+                </div>
+
+                <div class="post-card" id="a-css-l2-selector">
+                    <h4 class="post-title"><a href="./css-l2-selector/">L2.Selector</a></h4>
+                    <div class="post-meta">发布于 2026年2月6日 | 分类: CSS</div>
+                    <p class="post-excerpt">上节粗略的介绍了一些selector, 现在详细介绍一下.</p>
+                    <a href="./css-l2-selector/" class="read-more">阅读更多</a>
+                </div>
+
+                <div class="post-card" id="a-css-l3-box">
+                    <h4 class="post-title"><a href="./css-l3-box/">L3.Box</a></h4>
+                    <div class="post-meta">发布于 2026年2月8日 | 分类: CSS</div>
+                    <p class="post-excerpt">Everything in CSS has a box around it?</p>
+                    <a href="./css-l3-box/" class="read-more">阅读更多</a>
+                </div>
+            </div>
+
+            <div class="article-group" id="group-4">
+                <h3 class="group-title">JS<span class="group-count">2</span></h3>
+
+                <div class="post-card" id="a-js-l1-introduction">
+                    <h4 class="post-title"><a href="./js-l1-introduction/">L1.Introduction</a></h4>
+                    <div class="post-meta">发布于 2026年2月13日 | 分类: JS</div>
+                    <p class="post-excerpt">JS提供了动态操控网页的方式, 一般依赖于这些API(Application Programming Interfaces): Brower…</p>
+                    <a href="./js-l1-introduction/" class="read-more">阅读更多</a>
+                </div>
+
+                <div class="post-card" id="a-js-l2-frameworks">
+                    <h4 class="post-title"><a href="./js-l2-frameworks/">L2.Frameworks</a></h4>
+                    <div class="post-meta">发布于 2026年2月26日 | 分类: JS</div>
+                    <p class="post-excerpt">Developers wrote tools to solve the problems they faced, and packaged …</p>
+                    <a href="./js-l2-frameworks/" class="read-more">阅读更多</a>
+                </div>
+            </div>
+
+            <div class="article-group" id="group-5">
+                <h3 class="group-title">其他<span class="group-count">1</span></h3>
+
+                <div class="post-card" id="a-git">
+                    <h4 class="post-title"><a href="./git/">git</a></h4>
+                    <div class="post-meta">发布于 2025年5月31日 | 分类: 其他</div>
+                    <p class="post-excerpt">git小玩具~</p>
+                    <a href="./git/" class="read-more">阅读更多</a>
+                </div>
+            </div>
+            <!-- ARTICLES:END -->
+
         </section>
 
     </div>
@@ -447,7 +339,7 @@
         <div class="footer-container">
             <div class="footer-left">
                 <div class="footer-logo">yyc's blog</div>
-                <div class="footer-copy">© <span id="year"></span> yyc. 保留所有权利。</div>
+                <div class="footer-copy">© <span id="year"></span></div>
             </div>
             <div class="footer-links">
                 <a href="mailto:yyc114@qq.com">联系我</a>
@@ -485,5 +377,7 @@
             });
         });
     </script>
+
+    <script src="../assets/site.js"></script>
 </body>
 </html>

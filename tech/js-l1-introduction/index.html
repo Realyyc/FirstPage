@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="scripts/build_tech.py">
+    <title>L1.Introduction · yyc's blog</title>
+    <meta name="description" content="JS提供了动态操控网页的方式, 一般依赖于这些API(Application Programming Interfaces): Brower…">
+    <link rel="icon" href="../../images/opt/icon-64.png">
+    <link rel="stylesheet" href="../../assets/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+            onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],macros:{'\\part':'\\partial','\\tr':'\\operatorname{tr}','\\grad':'\\nabla'}});"></script>
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <header>
+        <nav class="navbar">
+            <div class="logo">yyc's blog</div>
+            <ul class="nav-links">
+                <li><a href="../../index.html" class="nav-link">首页</a></li>
+                <li><a href="../" class="nav-link active">技术分享</a></li>
+                <li><a href="../../daily/" class="nav-link">日常分享</a></li>
+                <li><a href="../../about/" class="nav-link">关于我</a></li>
+            </ul>
+            <div class="menu-toggle">☰</div>
+        </nav>
+    </header>
+
+    <div class="headimage">
+        <img src="../../images/opt/wolf-banner.jpg" alt="L1.Introduction" decoding="async" fetchpriority="high">
+    </div>
+
+    <!-- 主要内容区域 -->
+    <div class="container">
+        <article class="article">
+            <h1 class="article-title">L1.Introduction</h1>
+            <div class="post-meta">发布于 2026年2月13日 | 分类: JS</div>
+            <nav class="prev-next"><span class="pn-link"></span><span class="pn-pos">1 / 2</span><a class="pn-link pn-next" href="../js-l2-frameworks/"><span class="pn-dir">下一篇 →</span><span class="pn-title">L2.Frameworks</span></a></nav>
+            <p>JS提供了动态操控网页的方式, 一般依赖于这些<strong>API</strong>(Application Programming Interfaces): Brower APIs, Third Party APIs.</p>
+            <p>JS是一个<strong>解释型语言</strong>(interpreted), 使用解释器边解释边运行, 而不是先编译再运行.</p>
+            <p><strong>动态网页</strong>指网页会生成新的内容, 比如在服务端访问数据库, 在客户端生成新的表格.</p>
+            <h2>1.Add JS</h2>
+            <p><strong>Internal JS</strong> 在HTML的<code>&lt;body&gt;</code>元素中的结尾处使用<code>&lt;script&gt;</code>元素:</p>
+            <pre><code class="language-HTML">&lt;script&gt;
+  // JavaScript goes here
+&lt;/script&gt;</code></pre>
+            <p><strong>External JS</strong> 或者在<code>&lt;head&gt;</code>中添加外部索引:</p>
+            <pre><code class="language-html">&lt;script type="module" src="script.js"&gt;&lt;/script&gt;</code></pre>
+            <p>直接在HTML元素中调用JS函数(不推荐):</p>
+            <pre><code class="language-js">function createParagraph() {
+  const para = document.createElement("p");
+  para.textContent = "You clicked the button!";
+  document.body.appendChild(para);
+}</code></pre>
+            <pre><code class="language-html">&lt;button onclick="createParagraph()"&gt;Click me!&lt;/button&gt;</code></pre>
+            <p>HTML和JS都是逐行按顺序加载, JS不能使用一个还没加载的元素, 所以JS一般要放在最后, 所以Internal要放在body结尾处, External需要加上<code>type="modul"</code>这样浏览器会等待HTML先处理完再执行JS modules.</p>
+            <h2>2.An Example</h2>
+            <p>猜数小游戏:</p>
+            <p>设置<strong>变量</strong>:</p>
+            <pre><code class="language-js">let randomNumber = Math.floor(Math.random() * 100) + 1;
+
+const guesses = document.querySelector(".guesses");
+const lastResult = document.querySelector(".lastResult");
+const lowOrHi = document.querySelector(".lowOrHi");
+
+const guessSubmit = document.querySelector(".guessSubmit");
+const guessField = document.querySelector(".guessField");
+
+let guessCount = 1;
+let resetButton;</code></pre>
+            <p>使用<code>const</code>, <code>let</code>设置变量, 前者不可变, 后者可变.</p>
+            <p><code>document.querySelector(".class_name")</code>选择了HTML中的元素</p>
+            <p><strong>function</strong>: 只有关键词function而没有返回类型</p>
+            <pre><code class="language-js">function checkGuess() {
+  const userGuess = Number(guessField.value);
+  if (guessCount === 1) {
+    guesses.textContent = "Previous guesses:";
+  }
+  guesses.textContent = `${guesses.textContent} ${userGuess}`;
+
+  if (userGuess === randomNumber) {
+    lastResult.textContent = "Congratulations! You got it right!";
+    lastResult.style.backgroundColor = "green";
+    lowOrHi.textContent = "";
+    setGameOver();
+  } else if (guessCount === 10) {
+    lastResult.textContent = "!!!GAME OVER!!!";
+    lowOrHi.textContent = "";
+    setGameOver();
+  } else {
+    lastResult.textContent = "Wrong!";
+    lastResult.style.backgroundColor = "red";
+    if (userGuess &lt; randomNumber) {
+      lowOrHi.textContent = "Last guess was too low!";
+    } else if (userGuess &gt; randomNumber) {
+      lowOrHi.textContent = "Last guess was too high!";
+    }
+  }
+
+  guessCount++;
+  guessField.value = "";
+  guessField.focus();
+}</code></pre>
+            <p><strong>string</strong>:</p>
+            <pre><code class="language-js">const name = "Mahalia";
+
+const greeting = `Hello ${name}`;</code></pre>
+            <p><strong>Event</strong>: 使用Event listener在合适的时机调用特定函数(Event handler function)</p>
+            <pre><code class="language-js">guessSubmit.addEventListener("click", checkGuess);</code></pre>
+            <p>再添加最后两个函数完成我们的需求:</p>
+            <pre><code class="language-js">function setGameOver() {
+  guessField.disabled = true;
+  guessSubmit.disabled = true;
+  resetButton = document.createElement("button");
+  resetButton.textContent = "Start new game";
+  document.body.append(resetButton);
+  resetButton.addEventListener("click", resetGame);
+}
+
+function resetGame() {
+  guessCount = 1;
+
+  const resetParas = document.querySelectorAll(".resultParas p");
+  for (const resetPara of resetParas) {
+    resetPara.textContent = "";
+  }
+
+  resetButton.parentNode.removeChild(resetButton);
+
+  guessField.disabled = false;
+  guessSubmit.disabled = false;
+  guessField.value = "";
+  guessField.focus();
+
+  lastResult.style.backgroundColor = "white";
+
+  randomNumber = Math.floor(Math.random() * 100) + 1;
+}</code></pre>
+            <p>其中的<strong>loop</strong></p>
+            <pre><code class="language-js">const resetParas = document.querySelectorAll(".resultParas p");
+for (const resetPara of resetParas) {
+  resetPara.textContent = "";
+}</code></pre>
+            <p>这是出现在函数resetGame中的一个片段, resetParas选择了所有class为resultParas中的全部段落p, 使用for进行遍历, 注意虽然resetPara是const类型变量, 但我们依然可以改变他的元素的值.</p>
+            <p><strong>总结</strong> 上述猜数小游戏实现的逻辑大概是: guessSubmit不断监听click, click一次就调用一次checkGuess, 而checkGuess负责调用其他函数</p>
+            <nav class="prev-next"><span class="pn-link"></span><span class="pn-pos">1 / 2</span><a class="pn-link pn-next" href="../js-l2-frameworks/"><span class="pn-dir">下一篇 →</span><span class="pn-title">L2.Frameworks</span></a></nav>
+            <p class="article-back"><a class="read-more" href="../#a-js-l1-introduction">← 返回技术分享</a></p>
+        </article>
+    </div>
+
+    <!-- 页脚 -->
+    <footer>
+        <div class="footer-container">
+            <div class="footer-left">
+                <div class="footer-logo">yyc's blog</div>
+                <div class="footer-copy">© <span id="year"></span></div>
+            </div>
+            <div class="footer-links">
+                <a href="mailto:yyc114@qq.com">联系我</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 设置页脚年份
+        (function(){
+            const y = new Date().getFullYear();
+            const el = document.getElementById('year');
+            if (el) el.textContent = y;
+        })();
+    </script>
+
+    <script src="../../assets/site.js"></script>
+
+    <script>
+        // 导航栏切换功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuToggle = document.querySelector('.menu-toggle');
+            const navLinksContainer = document.querySelector('.nav-links');
+
+            menuToggle.addEventListener('click', function() {
+                navLinksContainer.classList.toggle('active');
+            });
+
+            document.addEventListener('click', function(e) {
+                if (window.innerWidth <= 768 &&
+                    !e.target.closest('.nav-links') &&
+                    !e.target.closest('.menu-toggle')) {
+                    navLinksContainer.classList.remove('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

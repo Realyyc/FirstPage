@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="scripts/build_tech.py">
+    <title>C20.Why dose deep net work · yyc's blog</title>
+    <meta name="description" content="问题 deep learning 为什么工作的很好, 上面十几章都在讲深层网络结构, 谈到工作好的原因, 可能还得回到第八章的double …">
+    <link rel="icon" href="../../images/opt/icon-64.png">
+    <link rel="stylesheet" href="../../assets/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+            onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],macros:{'\\part':'\\partial','\\tr':'\\operatorname{tr}','\\grad':'\\nabla'}});"></script>
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <header>
+        <nav class="navbar">
+            <div class="logo">yyc's blog</div>
+            <ul class="nav-links">
+                <li><a href="../../index.html" class="nav-link">首页</a></li>
+                <li><a href="../" class="nav-link active">技术分享</a></li>
+                <li><a href="../../daily/" class="nav-link">日常分享</a></li>
+                <li><a href="../../about/" class="nav-link">关于我</a></li>
+            </ul>
+            <div class="menu-toggle">☰</div>
+        </nav>
+    </header>
+
+    <div class="headimage">
+        <img src="../../images/opt/tiger-banner.jpg" alt="C20.Why dose deep net work" decoding="async" fetchpriority="high">
+    </div>
+
+    <!-- 主要内容区域 -->
+    <div class="container">
+        <article class="article">
+            <h1 class="article-title">C20.Why dose deep net work</h1>
+            <div class="post-meta">发布于 2025年7月29日 | 分类: 深度学习</div>
+            <nav class="prev-next"><a class="pn-link pn-prev" href="../dl-c19-reinforcement-learning/"><span class="pn-dir">← 上一篇</span><span class="pn-title">C19.Reinforcement Learning</span></a><span class="pn-pos">18 / 18</span><span class="pn-link"></span></nav>
+            <p><strong>问题</strong> deep learning 为什么工作的很好, 上面十几章都在讲深层网络结构, 谈到工作好的原因, 可能还得回到第八章的double descent.</p>
+            <h2>1.Problem</h2>
+            <p>​    <strong>问题1-高效训练</strong> 寻找一个非凸函数的全局最小值点是一个NP-hard问题. 一般来说, 使用gradient descent很容易困在局部最小值点. 但神经网络却很快的收敛到了使得损失函数的值很小的点. (data, model, training algorithm这三者或者其他的什么因素的组合可能是原因.)</p>
+            <p>​    <strong>问题2-结果具有generalization</strong> 即便训练十分高效, 损失函数的下降也仅仅是基于训练数据的. 但训练出来的神经网络对没有见过的数据仍然有很好的表现.</p>
+            <p>​    以MNIST-1D为例, 该数据是一个$\R^{40}\rightarrow\R^{10-1}$的多分类任务, 使用一个宽度为400的双隐层神经网络可以达到很好的效果.</p>
+            <p>​    <strong>疑点2.1</strong> 如果输入数据的每个分量被quantization成10个degree, 输入数据的所有可能数据高达$10^{40}$种, 而训练数据一共只有$10^4$个.</p>
+            <p>​    <strong>疑点2.2</strong> 宽度为400的双隐层神经网络最多可以得到$10^{42}$个线性区域, 而训练数据只有$10^{4}$, 极端情况下$10^{38}$个线性区域是没有数据的</p>
+            <p>​    <strong>疑点2.3</strong> double descent</p>
+            <h2>2.fators that influence fitting performance</h2>
+            <p>​    本节考虑损失函数高效下降的因素.</p>
+            <h3>2.1.Dataset</h3>
+            <p>​    将训练集进行毁灭性的处理也能训练:</p>
+            <img src="image-20250729113600848.png" alt="image-20250729113600848" style="zoom:50%;" loading="lazy" decoding="async">
+            <p>​    原论文似乎有争议, 最好自己看一下(Understanding deep learning requires rethinking generalization)</p>
+            <h3>2.2.Regularization</h3>
+            <p>​    公认regularization可以使得函数更加平滑, 但这篇文章又提出了另一个现象(Understanding deep learning requires rethinking generalization)</p>
+            <h3>2.3.Stochastic traning algorithm</h3>
+            <p>​    第九章提到过SGD有regularization的作用, 但这篇文章提到了以下现象:</p>
+            <img src="image-20250729120747087.png" alt="image-20250729120747087" style="zoom:50%;" loading="lazy" decoding="async">
+            <p>​    使用 full batch GD, 和很小的learning rate, 并训练了多达500k epoch.</p>
+            <h3>2.4.overparameterization</h3>
+            <p>​        double descent的概念. ‘</p>
+            <h3>2.5.activation function</h3>
+            <h3>2.6.Initialization</h3>
+            <h3>2.7.Network depth</h3>
+            <h2>3.loss function property</h2>
+            <p>​    起始点和最低点连线的loss function值变化...</p>
+            <h2>4.factor that determine generalization</h2>
+            <p>​    <strong>adversarial attack</strong>: 在图像中添加一点噪音使得神经网络错误分类. 这种噪音不太可能在现实世界图片出现, 但添加之后的整体感官也未发生明显变化, 但神经网络却进行了错误的识别.</p>
+            <p>​    <strong>Explanation</strong> 靠近数据流形的一些点被错误识别了, 十分奇怪, “Adversarial examples are not bugs, they are features. Neural Information Processing Systems”.</p>
+            <h2>5.paramter number</h2>
+            <p>​    超过训练数据大小的参数规模...目前的主流模型的参数可能仍然不够, 输入空间太大了.</p>
+            <h2>6.network depth</h2>
+            <p>​</p>
+            <nav class="prev-next"><a class="pn-link pn-prev" href="../dl-c19-reinforcement-learning/"><span class="pn-dir">← 上一篇</span><span class="pn-title">C19.Reinforcement Learning</span></a><span class="pn-pos">18 / 18</span><span class="pn-link"></span></nav>
+            <p class="article-back"><a class="read-more" href="../#a-dl-c20-why-dose-deep-net-work">← 返回技术分享</a></p>
+        </article>
+    </div>
+
+    <!-- 页脚 -->
+    <footer>
+        <div class="footer-container">
+            <div class="footer-left">
+                <div class="footer-logo">yyc's blog</div>
+                <div class="footer-copy">© <span id="year"></span></div>
+            </div>
+            <div class="footer-links">
+                <a href="mailto:yyc114@qq.com">联系我</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 设置页脚年份
+        (function(){
+            const y = new Date().getFullYear();
+            const el = document.getElementById('year');
+            if (el) el.textContent = y;
+        })();
+    </script>
+
+    <script src="../../assets/site.js"></script>
+
+    <script>
+        // 导航栏切换功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuToggle = document.querySelector('.menu-toggle');
+            const navLinksContainer = document.querySelector('.nav-links');
+
+            menuToggle.addEventListener('click', function() {
+                navLinksContainer.classList.toggle('active');
+            });
+
+            document.addEventListener('click', function(e) {
+                if (window.innerWidth <= 768 &&
+                    !e.target.closest('.nav-links') &&
+                    !e.target.closest('.menu-toggle')) {
+                    navLinksContainer.classList.remove('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

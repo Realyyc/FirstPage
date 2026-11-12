@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="scripts/build_tech.py">
+    <title>C6.Fitting models · yyc's blog</title>
+    <meta name="description" content="本章介绍Gradient Descent算法，关于Gradient的计算留在下章">
+    <link rel="icon" href="../../images/opt/icon-64.png">
+    <link rel="stylesheet" href="../../assets/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+            onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],macros:{'\\part':'\\partial','\\tr':'\\operatorname{tr}','\\grad':'\\nabla'}});"></script>
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <header>
+        <nav class="navbar">
+            <div class="logo">yyc's blog</div>
+            <ul class="nav-links">
+                <li><a href="../../index.html" class="nav-link">首页</a></li>
+                <li><a href="../" class="nav-link active">技术分享</a></li>
+                <li><a href="../../daily/" class="nav-link">日常分享</a></li>
+                <li><a href="../../about/" class="nav-link">关于我</a></li>
+            </ul>
+            <div class="menu-toggle">☰</div>
+        </nav>
+    </header>
+
+    <div class="headimage">
+        <img src="../../images/opt/tiger-banner.jpg" alt="C6.Fitting models" decoding="async" fetchpriority="high">
+    </div>
+
+    <!-- 主要内容区域 -->
+    <div class="container">
+        <article class="article">
+            <h1 class="article-title">C6.Fitting models</h1>
+            <div class="post-meta">发布于 2025年5月31日 | 分类: 深度学习</div>
+            <nav class="prev-next"><a class="pn-link pn-prev" href="../dl-c5-loss-function/"><span class="pn-dir">← 上一篇</span><span class="pn-title">C5.Loss Function</span></a><span class="pn-pos">4 / 18</span><a class="pn-link pn-next" href="../dl-c7-gradients-initialization/"><span class="pn-dir">下一篇 →</span><span class="pn-title">C7.Gradients &amp; Initialization</span></a></nav>
+            <p>本章介绍Gradient Descent算法，关于Gradient的计算留在下章</p>
+            <h2>1.Gradient Descent (omitted)</h2>
+            <h2>2.Stochastic Gradient Descent (omitted)</h2>
+            <h2>3.Momentum (omitted)</h2>
+            <h2>4.Adam</h2>
+            <h3>4.1.标准化</h3>
+            <p>​    每次更新gradient $m_{t+1}$ 和 广播平方的gradient $v_{t+1}$：</p>
+            <div class="math-display">$$m_{t+1} \leftarrow \frac{\partial L[\phi_t]}{\part \phi}\\
+            v_{t+1} \leftarrow (\frac{\partial L[\phi_t]}{\part \phi})^2\\$$</div>
+            <p>​    再更新参数：</p>
+            <div class="math-display">$$\phi_{t+1} \leftarrow \phi_t - \alpha  \frac{m_{t+1}}{\sqrt{v_{t+1}}+\epsilon}\\$$</div>
+            <p>​    上述计算中，平方根是广播的，两个向量相除也是按照python里的每个对应的数相除的规则，$\epsilon$防止除0。</p>
+            <p>​    实际上，上述过程就是把正常的gradient中的全部非零项变成$1$，比如 $(1,2,-1,0)$变成了$(1,1,1,0)$</p>
+            <h3>4.2.Adam</h3>
+            <p>​    上面的标准化实在是太粗暴了，Adaptive moment estimation (Adam)，使用下面的方法更新参数：</p>
+            <div class="math-display">$$m_{t+1} \leftarrow \beta m_t +(1-\beta) \frac{\partial L[\phi_t]}{\part \phi}\\
+            v_{t+1} \leftarrow \gamma v_t +(1-\gamma)(\frac{\partial L[\phi_t]}{\part \phi})^2\\$$</div>
+            <p>​    上式中$\beta,\gamma \in [0,1]$ 是momentum coefficient</p>
+            <p>​    为了防止开头的几步太小，再做一个修正：</p>
+            <div class="math-display">$$\tilde m_{t+1} \leftarrow \frac{m_{t+1}}{1-\beta^{t+1}}\\
+            \tilde v_{t+1} \leftarrow \frac{v_{t+1}}{1-\gamma^{t+1}}\\$$</div>
+            <p>​    最后还是按相同的方法更新：</p>
+            <div class="math-display">$$\phi_{t+1} \leftarrow \phi_t - \alpha  \frac{\tilde m_{t+1}}{\sqrt{\tilde v_{t+1}}+\epsilon}\\$$</div>
+            <h2>5.超参数</h2>
+            <p>​    学习算法的选择，batch size, learning rate, momentum coefficients 都是超参数</p>
+            <nav class="prev-next"><a class="pn-link pn-prev" href="../dl-c5-loss-function/"><span class="pn-dir">← 上一篇</span><span class="pn-title">C5.Loss Function</span></a><span class="pn-pos">4 / 18</span><a class="pn-link pn-next" href="../dl-c7-gradients-initialization/"><span class="pn-dir">下一篇 →</span><span class="pn-title">C7.Gradients &amp; Initialization</span></a></nav>
+            <p class="article-back"><a class="read-more" href="../#a-dl-c6-fitting-models">← 返回技术分享</a></p>
+        </article>
+    </div>
+
+    <!-- 页脚 -->
+    <footer>
+        <div class="footer-container">
+            <div class="footer-left">
+                <div class="footer-logo">yyc's blog</div>
+                <div class="footer-copy">© <span id="year"></span></div>
+            </div>
+            <div class="footer-links">
+                <a href="mailto:yyc114@qq.com">联系我</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 设置页脚年份
+        (function(){
+            const y = new Date().getFullYear();
+            const el = document.getElementById('year');
+            if (el) el.textContent = y;
+        })();
+    </script>
+
+    <script src="../../assets/site.js"></script>
+
+    <script>
+        // 导航栏切换功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuToggle = document.querySelector('.menu-toggle');
+            const navLinksContainer = document.querySelector('.nav-links');
+
+            menuToggle.addEventListener('click', function() {
+                navLinksContainer.classList.toggle('active');
+            });
+
+            document.addEventListener('click', function(e) {
+                if (window.innerWidth <= 768 &&
+                    !e.target.closest('.nav-links') &&
+                    !e.target.closest('.menu-toggle')) {
+                    navLinksContainer.classList.remove('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

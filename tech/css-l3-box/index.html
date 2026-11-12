@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="scripts/build_tech.py">
+    <title>L3.Box · yyc's blog</title>
+    <meta name="description" content="Everything in CSS has a box around it?">
+    <link rel="icon" href="../../images/opt/icon-64.png">
+    <link rel="stylesheet" href="../../assets/style.css">
+
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <header>
+        <nav class="navbar">
+            <div class="logo">yyc's blog</div>
+            <ul class="nav-links">
+                <li><a href="../../index.html" class="nav-link">首页</a></li>
+                <li><a href="../" class="nav-link active">技术分享</a></li>
+                <li><a href="../../daily/" class="nav-link">日常分享</a></li>
+                <li><a href="../../about/" class="nav-link">关于我</a></li>
+            </ul>
+            <div class="menu-toggle">☰</div>
+        </nav>
+    </header>
+
+    <div class="headimage">
+        <img src="../../images/opt/wolf-banner.jpg" alt="L3.Box" decoding="async" fetchpriority="high">
+    </div>
+
+    <!-- 主要内容区域 -->
+    <div class="container">
+        <article class="article">
+            <h1 class="article-title">L3.Box</h1>
+            <div class="post-meta">发布于 2026年2月8日 | 分类: CSS</div>
+            <nav class="prev-next"><a class="pn-link pn-prev" href="../css-l2-selector/"><span class="pn-dir">← 上一篇</span><span class="pn-title">L2.Selector</span></a><span class="pn-pos">3 / 3</span><span class="pn-link"></span></nav>
+            <p>Everything in CSS has a box around it?</p>
+            <h2>1.Overview</h2>
+            <p>Boxes 同时有 inner display type和outer display type, 使用属性<code>display</code>可以控制outer display type by: <code>display : block</code>, <code>display : inline</code>(相当于行间公式和行内公式), 一个HTML元素默认的模式一般是block.</p>
+            <h2>2.CSS box model</h2>
+            <p>一个box从里到外包括了如下部份, width和height是content的大小:</p>
+            <pre><code class="language-css">.box {
+  width: 350px;
+  height: 150px;
+  padding: 25px;
+  border: 5px solid black;
+  margin: 10px;
+}</code></pre>
+            <img src="box-model.png" alt="box-model" style="zoom:100%;" loading="lazy" decoding="async">
+            <p>虽然margin占了位置, 但我们一般不把margin算在box的大小里面, 而是将border当作计算box大小的边界.</p>
+            <p>CSS box还有<strong>alternative box model</strong>, 通过设置<code>box-sizing: border-box</code>打开:</p>
+            <pre><code class="language-css">.box {
+  box-sizing: border-box;
+}
+
+.box {
+  width: 350px;
+  height: 150px;
+  margin: 10px;
+  padding: 25px;
+  border: 5px solid black;
+}</code></pre>
+            <p>上述的width和height是content+padding+border的大小</p>
+            <p>使用下面的操作将所有的元素的box model都设置为alternative box model:</p>
+            <pre><code class="language-css">html {
+  box-sizing: border-box;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+}</code></pre>
+            <h2>3.Margins, Padding, Borders</h2>
+            <h3>3.1.Margin</h3>
+            <p>使用一个属性<code>margin</code>, 或者使用4个各个方向的属性<code>margin-top</code>, <code>margin-right</code>, <code>margin-bottom</code>, <code>margin-left</code>.</p>
+            <p><strong>margin</strong>控制两个相邻box之间的距离, 如果是负数则会导致box相交</p>
+            <pre><code class="language-html">&lt;div class="container"&gt;
+  &lt;div class="box"&gt;Change my margin.&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+            <pre><code class="language-css">.container {
+  border: 5px solid blue;
+  margin: 40px;
+}
+
+.box {
+  border: 5px solid rebeccapurple;
+  background-color: lightgray;
+  padding: 10px;
+  height: 100px;
+  /* try changing the margin properties: */
+  margin-top: -40px;
+  margin-right: 30px;
+  margin-bottom: 40px;
+  margin-left: 4em;
+}</code></pre>
+            <p><strong>margin collapsing</strong> 计算两个相邻box之间间隔的距离:</p>
+            <ol><li>如果两个box在相邻方向上的margin都是正数, then他们之间实际上相邻的距离为最大的那个</li><li>如果两个box在相邻方向上的margin都是负数, then他们之间实际上相邻的距离为最小的那个</li><li>如果两个box在相邻方向上的margin是一个正数和一个负数, then他们之间实际上相邻的距离为他们的和</li></ol>
+            <h3>3.2.Borders</h3>
+            <p><strong>border</strong> 在box的margin和padding中间</p>
+            <p>直接使用一个属性<code>border</code>, 或者使用更精确的<code>border-top</code>, <code>border-right</code>, <code>border-bottom</code>, <code>border-left</code>, <code>border-width</code>, <code>border-style</code>, <code>border-color</code></p>
+            <pre><code class="language-html">&lt;div class="container"&gt;
+  &lt;div class="box"&gt;Change my borders.&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+            <pre><code class="language-css">body {
+  font-family: sans-serif;
+}
+.container {
+  margin: 40px;
+  padding: 20px;
+  border-top: 5px dotted green;
+  border-right: 1px solid black;
+  border-bottom: 20px double rgb(23 45 145);
+}
+
+.box {
+  padding: 20px;
+  background-color: lightgray;
+  border: 1px solid #333333;
+  border-top-style: dotted;
+  border-right-width: 20px;
+  border-bottom-color: hotpink;
+}</code></pre>
+            <h3>3.3.Padding</h3>
+            <p><strong>Padding</strong> 是border和content之间的区域, padding不能是负数</p>
+            <p>直接使用一个属性<code>padding</code>, 或者使用更精确的<code>padding-top</code>, <code>padding-right</code>, <code>padding-bottom</code>, <code>padding-left</code>.</p>
+            <h2>4.Inline box element</h2>
+            <p><code>span</code>元素自动是inline模式, 这种情况下直接规定其margin等属性会导致上下文重叠:</p>
+            <pre><code class="language-html">&lt;p&gt;
+  I am a paragraph and this is a &lt;span&gt;span&lt;/span&gt; inside that paragraph. A span
+  is an inline element and so does not respect width and height.
+&lt;/p&gt;</code></pre>
+            <pre><code class="language-css">body {
+  font-family: sans-serif;
+}
+p {
+  border: 2px solid rebeccapurple;
+  width: 200px;
+}
+span {
+  margin: 20px 30px;
+  padding: 10px 20px;
+  width: 80px;
+  height: 150px;
+  background-color: lightblue;
+  border: solid blue;
+  border-width: 7px 1px;
+}</code></pre>
+            <p>将属性<code>display: inline-block</code>设置为inline-block可以自动调整上下文, 是的inline box不会和周围字符重叠:</p>
+            <pre><code class="language-css">span {
+  margin: 20px 30px;
+  padding: 10px 20px;
+  width: 80px;
+  height: 150px;
+  background-color: lightblue;
+  border: solid blue;
+  border-width: 7px 1px;
+  display: inline-block;
+}</code></pre>
+            <nav class="prev-next"><a class="pn-link pn-prev" href="../css-l2-selector/"><span class="pn-dir">← 上一篇</span><span class="pn-title">L2.Selector</span></a><span class="pn-pos">3 / 3</span><span class="pn-link"></span></nav>
+            <p class="article-back"><a class="read-more" href="../#a-css-l3-box">← 返回技术分享</a></p>
+        </article>
+    </div>
+
+    <!-- 页脚 -->
+    <footer>
+        <div class="footer-container">
+            <div class="footer-left">
+                <div class="footer-logo">yyc's blog</div>
+                <div class="footer-copy">© <span id="year"></span></div>
+            </div>
+            <div class="footer-links">
+                <a href="mailto:yyc114@qq.com">联系我</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 设置页脚年份
+        (function(){
+            const y = new Date().getFullYear();
+            const el = document.getElementById('year');
+            if (el) el.textContent = y;
+        })();
+    </script>
+
+    <script src="../../assets/site.js"></script>
+
+    <script>
+        // 导航栏切换功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuToggle = document.querySelector('.menu-toggle');
+            const navLinksContainer = document.querySelector('.nav-links');
+
+            menuToggle.addEventListener('click', function() {
+                navLinksContainer.classList.toggle('active');
+            });
+
+            document.addEventListener('click', function(e) {
+                if (window.innerWidth <= 768 &&
+                    !e.target.closest('.nav-links') &&
+                    !e.target.closest('.menu-toggle')) {
+                    navLinksContainer.classList.remove('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
